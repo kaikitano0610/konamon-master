@@ -1,0 +1,30 @@
+# konamon-master/docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend # backend/Dockerfileがあるディレクトリ
+      dockerfile: Dockerfile
+    container_name: konamon_backend
+    ports:
+      - "5000:5000"
+    volumes: # ホストPCのコード変更をコンテナに即座に反映（開発用）
+      - ./backend:/app
+    env_file: # プロジェクトルートにある .env.backend を読み込む
+      - ./.env.backend # .env.backendはプロジェクトルートにあるので、./で指定
+
+  frontend:
+    build:
+      context: ./frontend # frontend/Dockerfileがあるディレクトリ
+      dockerfile: Dockerfile
+    container_name: konamon_frontend
+    ports:
+      - "3000:3000"
+    volumes: # ホストPCのコード変更をコンテナに即座に反映（開発用）
+      - ./frontend:/app
+      - /app/node_modules # node_modulesはコンテナ内で管理し、ホストからはマウントしない
+    env_file: # プロジェクトルートにある .env.frontend を読み込む
+      - ./.env.frontend # .env.frontendはプロジェクトルートにあるので、./で指定
+    depends_on:
+      - backend # フロントエンドはバックエンドAPIの準備を待つように指定
