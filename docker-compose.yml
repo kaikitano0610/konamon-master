@@ -4,16 +4,13 @@ version: '3.8'
 services:
   backend:
     build:
-      # プロジェクトルート(konamon-master)をビルドの基準点にします
-      context: .
-      # ビルドに使うDockerfileのパスを明示的に指定します
-      dockerfile: ./backend/Dockerfile
+      context: ./backend # backend/Dockerfileがあるディレクトリ
+      dockerfile: Dockerfile
     container_name: konamon_backend
     ports:
       - "5001:5000"
     volumes: # ホストPCのコード変更をコンテナに即座に反映（開発用）
-      - .:/code
-    working_dir: /code # コンテナ内での作業場所を/codeに設定します
+      - ./backend:/app
     env_file: # プロジェクトルートにある .env.backend を読み込む
       - ./.env.backend # .env.backendはプロジェクトルートにあるので、./で指定
 

@@ -2,7 +2,7 @@
 # 舗のレコメンドロジック、混雑予測の計算など）をshops.py (APIレイヤー) から分離したい場合に使うらしい
 # 使うなら shop.pyから呼び出す
 
-from backend.app.services.db_service import get_db_connection
+from services.db_service import get_db_connection
 
 def get_shops_by_mood(mood_params):
     """AI診断に基づいて店舗を検索するロジックの例"""
