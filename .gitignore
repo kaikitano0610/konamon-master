@@ -1,12 +1,11 @@
 # Python
 __pycache__/
 *.pyc
-.env.backend
 
 # Node/React
 node_modules/
 build/
-.env.frontend
+.env*
 
 # Docker
 .dockerignore
