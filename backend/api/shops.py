@@ -1,6 +1,6 @@
 # konamon-master/backend/api/shops.py
 from flask import Blueprint, request, jsonify
-from ..services.db_service import get_db_connection 
+from services.db_service import get_db_connection 
 
 shops_bp = Blueprint('shops', __name__)
 
@@ -11,7 +11,7 @@ def get_all_shops():
         connection = get_db_connection()
         with connection.cursor() as cursor:
             # shopsテーブルからデータを取得
-            sql = "SELECT id, name, address, category FROM shops;"
+            sql = "SELECT id, name, recommended_reason, congestion_status FROM shops;"
             cursor.execute(sql)
             shops = cursor.fetchall()
             return jsonify(shops), 200
