@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
+from backend.app.api.shops import shops_bp
+from backend.app.api.auth import auth_bp
 import os
 
 db = SQLAlchemy()
@@ -22,8 +24,6 @@ def create_app():
     migrate.init_app(app, db)
 
     # Blueprint登録
-    from app.api.shops import shops_bp
-    from app.api.auth import auth_bp
     app.register_blueprint(shops_bp, url_prefix='/api/shops')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
 

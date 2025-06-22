@@ -1,15 +1,15 @@
 # konamon-master/backend/Dockerfile
 FROM python:3.9-slim-buster
 
-WORKDIR /app
+WORKDIR /code
 
-COPY requirements.txt .
+COPY backend/requirements.txt backend/requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# backendディレクトリ内の全てのソースコードをコピー
-# .env.backend は volumes でマウントするので、ここでは COPY しない
-COPY . .
+# アプリケーションのソースコードをコピーします
+# これにより、`backend`ディレクトリがコンテナのWORKDIR(/code)内に作成されます
+COPY backend/ backend/
 
 ENV PYTHONPATH=/app
 

@@ -1,6 +1,6 @@
 # konamon-master/backend/api/shops.py
 from flask import Blueprint, request, jsonify
-from services.db_service import get_db_connection 
+from backend.app.services.db_service import get_db_connection 
 
 shops_bp = Blueprint('shops', __name__)
 

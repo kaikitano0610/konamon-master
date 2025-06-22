@@ -1,7 +1,7 @@
 # backend/seed/shops.py
 
 from app import create_app, db
-from models import Shop
+from backend.app.models import Shop
 
 
 def seed_shops():

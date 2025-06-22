@@ -1,5 +1,5 @@
 # backend/models.py
-from app import db  # db は app.py で作成されたものをインポート
+from backend.app import db  # db は app.py で作成されたものをインポート
 
 class Shop(db.Model):
     __tablename__ = 'shops'
