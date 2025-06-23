@@ -43,6 +43,7 @@ function Sample() {
           {shops.map(shop => (
             <div key={shop.id} className="shop-card">
               <h2>{shop.name}</h2>
+              <p>id:{shop.id}</p>
               <p><strong>混雑状況:</strong> <span className={`status-${shop.congestion_status.replace(' ', '')}`}>{shop.congestion_status}</span></p>
               <p><strong>おすすめ理由:</strong> {shop.recommended_reason}</p>
             </div>
