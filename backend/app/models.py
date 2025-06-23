@@ -1,5 +1,5 @@
 # backend/models.py
-from backend.app import db  # db は app.py で作成されたものをインポート
+from backend.app.extensions import db  # db は app.py で作成されたものをインポート
 from datetime import datetime
 from enum import Enum
 # ---------- 共通 mixin ---------- #
