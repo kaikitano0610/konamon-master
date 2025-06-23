@@ -4,10 +4,8 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from backend.app.api.shops import shops_bp
 from backend.app.api.auth import auth_bp
+from backend.app.extensions import db, migrate
 import os
-
-db = SQLAlchemy()
-migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
