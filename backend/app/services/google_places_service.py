@@ -2,95 +2,67 @@
 
 import os
 import requests
-import logging
-from typing import Tuple, Dict, Any
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise RuntimeError("環境変数 GOOGLE_API_KEY を設定してください")
 
-# --- Text Search API用の設定 ---
-TEXT_SEARCH_API_ENDPOINT = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+TEXT_SEARCH_API = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+DETAILS_API      = "https://maps.googleapis.com/maps/api/place/details/json"
+PHOTO_API        = "https://maps.googleapis.com/maps/api/place/photo"
 
-# --- Place Details API用の設定を追加 ---
-PLACE_DETAILS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/place/details/json"
 
-def search_nearby_shops(    keyword: str, 
-    lat: float, 
-    lon: float, 
-    radius: int = 1000,
-    min_price: int = None,      # ★追加
-    max_price: int = None,      # ★追加
-    open_now: bool = False,     # ★追加
-    page_token: str = None,      # ★追加
-    **kwargs
-) -> Tuple[Dict[str, Any], int]:
+def text_search(query: str, lang="ja", limit=3):
     """
-    指定されたキーワードと位置情報でGoogle Places API (Text Search)を検索する
+    Text Search API でクエリ検索 → 上位 `limit` 件を返す
+    戻り値: [{'place_id': ..., 'name': ..., 'address': ..., 'photo_ref': ...}, ...]
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        return {"error": "API key is not configured"}, 500
+    resp = requests.get(TEXT_SEARCH_API, params={
+        "query": query,
+        "language": lang,
+        "key": GOOGLE_API_KEY,
+    }, timeout=10)
+    resp.raise_for_status()
 
-    params = {
-        "query": keyword,
-        "language": "ja",
-        "key": api_key,
-        **kwargs # 他のパラメータを受け取れるように
-    }
-    # page_tokenが指定されている場合は、他の条件は不要
-    if page_token:
-        params["pagetoken"] = page_token
-    else:
-        # page_tokenがない場合のみ、他の条件を設定
-        params["location"] = f"{lat},{lon}"
-        params["radius"] = radius
-        params["type"] = "restaurant"
-        if min_price is not None and 0 <= min_price <= 4:
-            params["minprice"] = min_price
-        if max_price is not None and 0 <= max_price <= 4:
-            params["maxprice"] = max_price
-        if open_now:
-            params["opennow"] = "true"
+    results = resp.json().get("results", [])[:limit]
+    shops = []
+    for r in results:
+        shops.append({
+            "place_id": r.get("place_id"),
+            "name":      r.get("name"),
+            "address":   r.get("formatted_address"),
+            "photo_ref": (r.get("photos", [{}])[0].get("photo_reference")
+                          if r.get("photos") else None),
+        })
+    return shops
 
-    try:
-        response = requests.get(TEXT_SEARCH_API_ENDPOINT, params=params, timeout=5)
-        response.raise_for_status() # HTTPエラーがあれば例外を発生
-        return response.json(), 200
-    except requests.exceptions.RequestException as e:
-        print(f"Error calling Google Places API: {e}")
-        return {"error": "Failed to communicate with external service"}, 503
-    
 
-# ★★★ 詳細情報を取得するための新しい関数を追加 ★★★
-def get_shop_details(place_id: str) -> Tuple[Dict[str, Any], int]:
+def get_place_detail(place_id: str, lang="ja"):
     """
-    指定されたplace_idのお店の詳細情報を取得する
+    Place Details API で詳細取得
+    戻り値: dict（店舗詳細） / None
     """
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        logger.error("API key (GOOGLE_API_KEY) is not configured.")
-        return {"error": "API key is not configured"}, 500
-
-    # fieldsパラメータで欲しい情報を指定する
-    fields = "place_id,name,formatted_address,geometry,rating,user_ratings_total,reviews,photos,opening_hours,website,formatted_phone_number"
-    
-    params = {
+    resp = requests.get(DETAILS_API, params={
         "place_id": place_id,
-        "fields": fields,
-        "language": "ja",
-        "key": api_key
-    }
+        "language": lang,
+        "fields": "name,formatted_address,formatted_phone_number,opening_hours,photos",
+        "key": GOOGLE_API_KEY,
+    }, timeout=10)
+    resp.raise_for_status()
 
-    try:
-        response = requests.get(PLACE_DETAILS_API_ENDPOINT, params=params, timeout=5)
-        response.raise_for_status()
-        
-        try:
-            return response.json(), 200
-        except requests.exceptions.JSONDecodeError:
-            logger.error("Failed to decode JSON from Google Place Details API response.")
-            return {"error": "Invalid response from external service"}, 502
-            
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error calling Google Place Details API: {e}")
-        return {"error": "Failed to communicate with external service"}, 503
+    result = resp.json().get("result")
+    if not result:
+        return None
+
+    photo_ref = (result.get("photos", [{}])[0].get("photo_reference")
+                 if result.get("photos") else None)
+
+    return {
+        "place_id": place_id,
+        "name":  result.get("name"),
+        "address": result.get("formatted_address"),
+        "phone":   result.get("formatted_phone_number"),
+        "opening_hours": result.get("opening_hours", {}).get("weekday_text"),
+        "photo_url": (f"{PHOTO_API}?maxwidth=400&photo_reference={photo_ref}&key={GOOGLE_API_KEY}"
+                      if photo_ref else None)
+    }
