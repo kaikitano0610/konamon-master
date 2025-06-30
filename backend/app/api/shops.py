@@ -28,22 +28,25 @@ def get_all_shops():
 
 # ------------------------------------------------------------
 # prompt で Google Places を検索
-#    POST /api/shops/search   body: {"prompt": "..."}
+#    POST /api/shops/recommend   body: {"prompt": "..."}
 # ------------------------------------------------------------
-@shops_bp.route("/search", methods=["POST"])
-def search_shops_by_prompt():
+@shops_bp.route("/recommend", methods=["POST"])
+def recommend_shops_by_mood(): # 関数名は機能に合わせて変更
     payload = request.get_json(force=True, silent=True) or {}
-    prompt = (payload.get("prompt") or "").strip()
-    if not prompt:
-        return jsonify({"error": "prompt is required"}), 400
+    # prompt ではなく mood_query を取得
+    mood_query = (payload.get("mood_query") or "").strip() 
+    food_type = (payload.get("food_type") or "").strip() 
 
-    return jsonify(text_search(prompt)), 200
+    if not mood_query:
+        return jsonify({"error": ("Mood query is required.")}), 400
+
+    return jsonify(text_search(mood_query,food_type)), 200
 
 # ------------------------------------------------------------
 # Google Place の詳細を返す
-#    GET /api/shops/external/<place_id>
+#    GET /api/shops/<place_id>
 # ------------------------------------------------------------
-@shops_bp.route("/external/<place_id>", methods=["GET"])
+@shops_bp.route("/<place_id>", methods=["GET"])
 def get_external_shop_detail(place_id):
     detail = get_place_detail(place_id)
     if detail is None:
