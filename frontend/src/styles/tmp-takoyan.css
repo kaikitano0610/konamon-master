@@ -1,0 +1,9 @@
+/* ---------- 共通のたこヤンアイコン（仮） ---------- */
+.takoyan-icon {
+  width: 80px; /* アイコンの幅 */
+  height: 80px; /* アイコンの高さ */
+  background-color: #ff4500; /* タコの色（仮） */
+  border-radius: 50%; /* 丸くする */
+  margin-bottom: 20px;
+  /* 実際のたこヤンイラストがあれば、background-image: url('path/to/takoyan.png'); background-size: contain; など */
+}

@@ -1,5 +1,10 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+import SplashScreen from './components/SplashScreen/SplashScreen';
+import Navbar from './components/Navbar/Navbar';
+
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SigninPage from './pages/SigninPage';
@@ -11,11 +16,25 @@ import RecipeDetailPage from './pages/RecipeDetailPage';
 import RecipePostPage from './pages/RecipePostPage';
 import ConfigPage from './pages/ConfigPage';
 import NotFoundPage from './pages/NotFoundPage';
-import Navbar from './components/Navbar/Navbar';
 
 function App() {
+
+  const [showSplash, setShowSplash] = useState(
+    sessionStorage.getItem('hasSeenSplash') !== 'true' 
+  );
+
+  useEffect(() => {
+    if (!showSplash) {
+      sessionStorage.setItem('hasSeenSplash', 'true');
+    }
+  }, [showSplash]);
+
+
   return (
     <Router>
+      {showSplash && (
+        <SplashScreen onComplete={() => setShowSplash(false)} />
+      )}
       <div>
         <Navbar />
         <Routes>

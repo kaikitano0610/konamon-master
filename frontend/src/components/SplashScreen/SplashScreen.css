@@ -1,0 +1,43 @@
+.splash-screen {
+  position: fixed; /* 画面全体を覆う */
+  top: 0;
+  left: 0;
+  width: 100vw; /* ビューポートの幅 */
+  height: 100vh; /* ビューポートの高さ */
+  background-color: #81DCFD; /* 青系 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 他の要素より常に前面に表示 */
+  color: white;
+  opacity: 1;
+  transition: opacity 1s ease-out; /* フェードアウトアニメーション */
+}
+
+/* 非表示にする際のクラス。JSで制御する場合 `display: none;` や `visibility: hidden;` を使う方が確実 */
+.splash-screen.hidden {
+  opacity: 0;
+  pointer-events: none; /* クリックイベントを無効化 */
+}
+
+.splash-content {
+  text-align: center;
+  animation: fadeIn 2s ease-out; /* コンテンツのフェードイン */
+}
+
+.splash-content h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* フェードインアニメーションの定義 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

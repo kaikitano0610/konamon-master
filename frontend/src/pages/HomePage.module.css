@@ -1,0 +1,76 @@
+.home-page-container {
+  display: flex;
+  flex-direction: column; /* 要素を縦に並べる */
+  align-items: center; /* 水平方向の中央寄せ */
+  justify-content: center; /* 垂直方向の中央寄せ（画面全体に広がる場合） */
+  min-height: calc(100vh - var(--navbar-height, 0px)); /* ナビバーの高さを考慮 */
+  background-color: #add8e6; /* 水色系 */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.dialog-bubble {
+  background-color: white; /* 吹き出しの背景色 */
+  border: 2px solid #333; /* 吹き出しの枠線 */
+  border-radius: 20px; /* 角を丸く */
+  padding: 15px 25px;
+  margin-bottom: 20px; /* ボタンとの間にスペース */
+  position: relative; /* 吹き出しのしっぽのため */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 80%; /* 吹き出しの最大幅 */
+}
+
+/* 吹き出しのしっぽ */
+.dialog-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; /* 吹き出しの下から出るように */
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-right: 2px solid #333;
+  border-bottom: 2px solid #333;
+  z-index: -1; /* 吹き出し本体より奥に */
+}
+
+.takoyan-dialog-text {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: bold; /* セリフの文字を太く */
+}
+
+.selection-buttons {
+  display: flex;
+  flex-direction: column; /* ボタンを縦に並べる */
+  gap: 20px; /* ボタン間の余白 */
+  width: 80%; /* ボタンの幅 */
+  max-width: 350px; /* 最大幅 */
+}
+
+.selection-button {
+  background-color: #ffeb3b; /* 黄色系 */
+  color: #333;
+  border: none;
+  border-radius: 30px; /* 丸みを帯びたボタン */
+  padding: 18px 25px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.selection-button:hover {
+  background-color: #fdd835; /* ホバーで少し濃く */
+  transform: translateY(-3px); /* 少し浮き上がるエフェクト */
+}
+
+.selection-button:active {
+  transform: translateY(0); /* クリックで元に戻る */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
