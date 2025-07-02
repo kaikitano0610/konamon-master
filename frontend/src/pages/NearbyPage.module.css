@@ -1,0 +1,178 @@
+/* frontend/src/js/pages/NearbyPage.module.css */
+
+.nearby-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* 画面中央に配置 */
+  padding: 20px;
+  background-color: #add8e6; /* 水色系 */
+  min-height: calc(100vh - var(--navbar-height, 0px));
+  box-sizing: border-box;
+}
+
+/* ---------- 共通スタイル (粉もん選択画面、店舗一覧画面) ---------- */
+.page-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.loading-message, .error-message, .no-shops-message {
+  color: #666;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+.error-message {
+  color: red;
+}
+
+
+/* ---------- 粉もん選択画面 (step 0) のスタイル ---------- */
+.food-select-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.food-select-title { /* .page-title と同じスタイル */
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.food-select-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 80%;
+  max-width: 300px;
+}
+
+.food-button {
+  background-color: #ffeb3b;
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.food-button:hover {
+  background-color: #fdd835;
+  transform: translateY(-2px);
+}
+
+.food-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ---------- 店舗一覧表示画面 (step 1) のスタイル ---------- */
+.shop-list-section { /* 新しいセクションのクラス */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px; /* リストの最大幅 */
+}
+
+.shop-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.shop-card {
+  display: flex;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  overflow: hidden;
+  align-items: center; /* 垂直中央寄せ */
+}
+
+.shop-image {
+  width: 100px; /* 画像の幅 */
+  height: 100px; /* 画像の高さ */
+  min-width: 100px; /* 縮小させない */
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.shop-info {
+  flex-grow: 1;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.shop-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.shop-distance {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.shop-address {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.shop-congestion, .shop-open, .shop-closed {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.shop-open {
+  color: #4CAF50; /* 緑 */
+}
+
+.shop-closed {
+  color: #f44336; /* 赤 */
+}
+
+
+/* デスクトップ向け調整 (任意) */
+@media (min-width: 768px) {
+  .food-select-buttons, .selection-buttons, .mood-input-area {
+    max-width: 400px; /* デスクトップでのフォーム/ボタンの最大幅 */
+  }
+
+  .shop-list-section {
+    max-width: 800px; /* デスクトップでの一覧の最大幅 */
+  }
+
+  .shop-card {
+    flex-direction: row; /* 横並びのカードを維持 */
+    height: auto;
+  }
+
+  .shop-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px; /* 角丸を維持 */
+  }
+}
