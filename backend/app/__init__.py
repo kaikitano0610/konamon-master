@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from backend.app.api.shops import shops_bp
 from backend.app.api.auth import auth_bp
+from backend.app.api.users import users_bp
 from backend.app.extensions import db, migrate
 import os
 
@@ -24,6 +25,7 @@ def create_app():
     # Blueprint登録
     app.register_blueprint(shops_bp, url_prefix='/api/shops')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
 
     @app.route('/')
     def home():
