@@ -13,6 +13,7 @@ import RecommendPage from './pages/RecommendPage';
 import ShopDetailPage from './pages/ShopDetailPage';
 import RecipeListPage from './pages/RecipeListPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
+import RecipeEditPage from './pages/RecipeEditPage';
 import RecipePostPage from './pages/RecipePostPage';
 import ConfigPage from './pages/ConfigPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -46,6 +47,7 @@ function App() {
           <Route path="/shops/:placeId" element={<ShopDetailPage />} />
           <Route path="/recipes" element={<RecipeListPage />} />
           <Route path="/recipes/post" element={<RecipePostPage />} />
+          <Route path="/recipes/:recipeId/edit" element={<RecipeEditPage />} />
           <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
           <Route path="/config" element={<ConfigPage />} />
           {/* どのルートにもマッチしない場合（404ページ） */}
