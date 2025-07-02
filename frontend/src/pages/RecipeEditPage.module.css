@@ -1,0 +1,148 @@
+/* frontend/src/js/pages/RecipeEditPage.module.css */
+
+.edit-page-container { /* PostPage と同じくコンテナスタイル */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #add8e6; /* 水色系 */
+  min-height: calc(100vh - var(--navbar-height, 0px));
+  box-sizing: border-box;
+}
+
+.page-title { /* PostPage と同じくタイトルスタイル */
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.recipe-form { /* PostPage と同じくフォームスタイル */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group { /* PostPage と同じくフォームグループスタイル */
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label { /* PostPage と同じくラベルスタイル */
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.required { /* PostPage と同じく必須マークスタイル */
+  color: red;
+  margin-left: 5px;
+}
+
+.form-input,
+.form-textarea,
+.form-select { /* PostPage と同じく入力フィールドスタイル */
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-textarea { /* PostPage と同じくテキストエリアスタイル */
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-select { /* PostPage と同じくセレクトボックススタイル */
+  appearance: none;
+  background-color: white;
+  cursor: pointer;
+}
+
+.form-file-input { /* PostPage と同じくファイル入力スタイル */
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background-color: transparent;
+}
+
+.file-name { /* PostPage と同じくファイル名表示スタイル */
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.submit-button { /* PostPage と同じく送信ボタンのスタイル */
+  background-color: #ffeb3b;
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 15px;
+}
+
+.submit-button:hover { /* PostPage と同じくホバースタイル */
+  background-color: #fdd835;
+  transform: translateY(-2px);
+}
+
+.submit-button:active { /* PostPage と同じくアクティブスタイル */
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ★編集画面固有のスタイル (メディア表示部分) */
+.current-media-display {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.current-photo,
+.current-video {
+    max-width: 100%;
+    height: auto;
+    max-height: 200px; /* プレビューの最大高さ */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* PostPage と同じくデスクトップ向け調整 */
+@media (min-width: 768px) {
+  .recipe-form {
+    padding: 35px 50px;
+  }
+
+  .form-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .form-label {
+    flex-basis: 150px;
+    margin-bottom: 0;
+    text-align: right;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select,
+  .form-file-input {
+    flex-grow: 1;
+  }
+}

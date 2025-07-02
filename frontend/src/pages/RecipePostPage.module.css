@@ -1,0 +1,132 @@
+/* frontend/src/js/pages/RecipePostPage.module.css */
+
+.recipe-post-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #add8e6; /* 水色系 */
+  min-height: calc(100vh - var(--navbar-height, 0px));
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.recipe-form {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  width: 100%;
+  max-width: 600px; /* フォームの最大幅 */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 各フォームグループ間の余白 */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.required {
+  color: red;
+  margin-left: 5px;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box; /* パディングを幅に含める */
+}
+
+.form-textarea {
+  resize: vertical; /* 垂直方向のみリサイズ可能 */
+  min-height: 80px;
+}
+
+.form-select {
+  appearance: none; /* デフォルトの矢印を非表示 (必要であればカスタム矢印を追加) */
+  background-color: white;
+  cursor: pointer;
+}
+
+.form-file-input {
+  width: 100%;
+  padding: 10px 0; /* ファイル入力はパディングを調整 */
+  border: none;
+  background-color: transparent; /* 背景透明 */
+}
+
+.file-name {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.submit-button {
+  background-color: #ffeb3b; /* 黄色系 */
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 15px;
+}
+
+.submit-button:hover {
+  background-color: #fdd835;
+  transform: translateY(-2px);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* デスクトップ向け調整 */
+@media (min-width: 768px) {
+  .recipe-form {
+    padding: 35px 50px; /* デスクトップでパディングを増やす */
+  }
+
+  .form-group {
+    flex-direction: row; /* ラベルと入力を横並びに */
+    align-items: center;
+    gap: 20px;
+  }
+
+  .form-label {
+    flex-basis: 150px; /* ラベルの幅を固定 */
+    margin-bottom: 0;
+    text-align: right;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select,
+  .form-file-input {
+    flex-grow: 1; /* 入力フィールドが残りのスペースを埋める */
+  }
+}

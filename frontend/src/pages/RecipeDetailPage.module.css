@@ -1,0 +1,133 @@
+/* frontend/src/js/pages/RecipeDetailPage.module.css */
+
+.detail-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #add8e6; /* 水色系 */
+  min-height: calc(100vh - var(--navbar-height, 0px));
+  box-sizing: border-box;
+  color: #333;
+}
+
+.recipe-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.media-container {
+  width: 100%;
+  max-width: 600px; /* メディアの最大幅 */
+  margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-photo,
+.recipe-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.recipe-info-section {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4CAF50; /* 緑系 */
+  margin-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+.recipe-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-wrap; /* 改行を保持 */
+}
+
+.recipe-attributes {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+}
+
+.recipe-attributes p {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.attribute-value {
+  font-weight: bold;
+  color: #007bff; /* 青系 */
+}
+
+.edit-button {
+  background-color: #ffeb3b; /* 黄色系 */
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+  display: inline-block; /* リンクとして中央寄せするため */
+}
+
+.edit-button:hover {
+  background-color: #fdd835;
+  transform: translateY(-2px);
+}
+
+.edit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-message, .not-found-message {
+  color: red;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* デスクトップ向け調整 */
+@media (min-width: 768px) {
+  .detail-page-container {
+    padding: 30px;
+  }
+
+  .recipe-title {
+    font-size: 2.5rem;
+  }
+
+  .media-container {
+    width: 80%; /* デスクトップで少し広げる */
+  }
+
+  .recipe-info-section, .recipe-attributes {
+    padding: 30px;
+  }
+}
