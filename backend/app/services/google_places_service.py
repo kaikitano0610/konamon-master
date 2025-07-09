@@ -66,3 +66,34 @@ def get_place_detail(place_id: str, lang="ja"):
         "photo_url": (f"{PHOTO_API}?maxwidth=400&photo_reference={photo_ref}&key={GOOGLE_API_KEY}"
                       if photo_ref else None)
     }
+
+def get_place_detail2(place_id: str, lang="ja"):
+    resp = requests.get(DETAILS_API, params={
+        "place_id": place_id,
+        "language": lang,
+        "fields": "name,formatted_address,geometry,photos,opening_hours,rating,user_ratings_total,url",
+        "key": GOOGLE_API_KEY,
+    }, timeout=10)
+    resp.raise_for_status()
+
+    result = resp.json().get("result")
+    if not result:
+        return None
+
+    photo_ref = (result.get("photos", [{}])[0].get("photo_reference")
+                 if result.get("photos") else None)
+
+    geometry = result.get("geometry", {}).get("location", {})
+
+    return {
+        "place_id": place_id,
+        "name": result.get("name"),
+        "address": result.get("formatted_address"),
+        "latitude": geometry.get("lat"),
+        "longitude": geometry.get("lng"),
+        "main_photo_url": (
+            f"{PHOTO_API}?maxwidth=400&photo_reference={photo_ref}&key={GOOGLE_API_KEY}"
+            if photo_ref else None
+        ),
+        "opening_hours_periods": result.get("opening_hours", {}).get("periods", [])
+    }
