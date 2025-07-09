@@ -39,6 +39,9 @@ def text_search(query: str, food_type: str = "", limit=5):
             "address":   r.get("formatted_address"),
             "photo_ref": (r.get("photos", [{}])[0].get("photo_reference")
                           if r.get("photos") else None),
+            "phone":      r.get("formatted_phone_number"),
+            "opening_hours": r.get("opening_hours", {}).get("weekday_text"),
+
         }
         
         # 詳細情報を取得（営業時間）
