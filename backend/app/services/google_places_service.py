@@ -12,20 +12,25 @@ DETAILS_API      = "https://maps.googleapis.com/maps/api/place/details/json"
 PHOTO_API        = "https://maps.googleapis.com/maps/api/place/photo"
 
 
-def text_search(query: str, lang="ja", limit=3):
+def text_search(query: str, food_type: str = "", limit=5):
     """
     Text Search API でクエリ検索 → 上位 `limit` 件を返す
+    query: ユーザーの気分
+    food_type: 食べ物の種類
     戻り値: [{'place_id': ..., 'name': ..., 'address': ..., 'photo_ref': ...}, ...]
     """
-    resp = requests.get(TEXT_SEARCH_API, params={
-        "query": query,
-        "language": lang,
-        "key": GOOGLE_API_KEY,
-    }, timeout=10)
-    resp.raise_for_status()
+    search_query = f"{food_type} {query}".strip()
 
-    results = resp.json().get("results", [])[:limit]
+    params = {
+        "query": search_query,
+        "key": GOOGLE_API_KEY,
+    }
+    
+    resp = requests.get(TEXT_SEARCH_API, params=params, timeout=10)
+    resp.raise_for_status()
+    
     shops = []
+    results = resp.json().get("results", [])[:limit]
     for r in results:
         shops.append({
             "place_id": r.get("place_id"),
@@ -33,6 +38,8 @@ def text_search(query: str, lang="ja", limit=3):
             "address":   r.get("formatted_address"),
             "photo_ref": (r.get("photos", [{}])[0].get("photo_reference")
                           if r.get("photos") else None),
+            "phone":      r.get("formatted_phone_number"),
+            "opening_hours": r.get("opening_hours", {}).get("weekday_text"),
         })
     return shops
 
