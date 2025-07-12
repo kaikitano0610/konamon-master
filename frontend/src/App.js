@@ -17,6 +17,7 @@ import RecipeEditPage from './pages/RecipeEditPage';
 import RecipePostPage from './pages/RecipePostPage';
 import ConfigPage from './pages/ConfigPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ShopListPage from './pages/ShopListPage';
 
 function App() {
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/nearby" element={<NearbyPage />} />
           <Route path="/recommend" element={<RecommendPage />} />
+          <Route path="/recommend/list" element={<ShopListPage />} />
           <Route path="/shops/:placeId" element={<ShopDetailPage />} />
           <Route path="/recipes" element={<RecipeListPage />} />
           <Route path="/recipes/post" element={<RecipePostPage />} />
