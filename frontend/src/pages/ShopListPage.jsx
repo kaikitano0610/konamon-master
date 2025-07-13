@@ -8,6 +8,10 @@ function ShopListPage() {
   const navigate = useNavigate();
   const { shopData } = location.state || { shopData: [] };
 
+  const handleCardClick = (placeId) => {
+    navigate(`/shops/${placeId}`);
+  };
+
   const getTodayOpeningHours = (openingHours) => {
     if (!openingHours || openingHours.length === 0) {
       return '営業時間不明';
@@ -42,7 +46,11 @@ function ShopListPage() {
       <h1 className={styles['shop-list-title']}>おすすめのお店やで！</h1>
       <div className={styles['shop-cards-grid']}>
         {shopData.map((shop, index) => (
-          <div key={index} className={styles['shop-card']}>
+          <div 
+            key={index} 
+            className={styles['shop-card']}
+            onClick={() => handleCardClick(shop.place_id)} 
+            >
             <h2 className={styles['shop-name']}>{shop.name}</h2>
             <p className={styles['shop-address']}>住所: {shop.address}</p>
             {shop.phone && <p className={styles['shop-phone']}>電話: {shop.phone}</p>}
