@@ -3,15 +3,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - var(--navbar-height, 0px)); /* ナビバーの高さを考慮 */
+  min-height: calc(95vh - var(--navbar-height, 0px)); /* ナビバーの高さを考慮 */
   background-color: #add8e6; /* 水色系 */
-  padding: 20px;
+  padding:0 20px;
   box-sizing: border-box;
   text-align: center; /* 全体的に中央寄せ */
 }
 
 
 /* ---------- 粉もん選択画面 (step 0) ---------- */
+.top-title {
+  font-size: 2.2rem; /* タイトルのフォントサイズ */
+  color: #333; /* タイトルの色 */
+  margin-bottom: 50px; /* タイトルとボタンの間隔 */
+  font-weight: bold; /* 太字 */
+}
+
 .food-select-section {
   display: flex;
   flex-direction: column;
@@ -21,9 +28,8 @@
 }
 
 .food-select-title {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #333;
-  margin-bottom: 30px;
   font-weight: bold;
 }
 
@@ -73,7 +79,7 @@
   border: 2px solid #333;
   border-radius: 20px;
   padding: 15px 25px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -95,7 +101,7 @@
 }
 
 .takoyan-dialog-text {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #333;
   margin: 0;
   line-height: 1.5;
