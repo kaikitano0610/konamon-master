@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import styles from './RecommendPage.module.css'; 
-import '../styles/tmp-takoyan.css';
+import '../styles/takoyan.css';
 
 function RecommendPage() {
   const [step, setStep] = useState(0);
@@ -48,6 +48,10 @@ function RecommendPage() {
     <div className={styles['recommend-page-container']}>
       {step === 0 && ( 
         <div className={styles['food-select-section']}>
+          <div className={styles["dialog-bubble"]}>
+            <p className={styles["takoyan-dialog-text"]}>ほな、気分で探そか！</p>
+            <p className={styles["takoyan-dialog-text"]}>どっちを探しましょ？？</p>
+          </div>
           <div className="takoyan-icon"></div> 
           <h1 className={styles['food-select-title']}>粉もん選択</h1>
           <div className={styles['food-select-buttons']}>
