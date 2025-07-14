@@ -50,6 +50,7 @@
   gap: 20px; /* ボタン間の余白 */
   width: 80%; /* ボタンの幅 */
   max-width: 350px; /* 最大幅 */
+  margin-top: 20px; 
 }
 
 .selection-button {

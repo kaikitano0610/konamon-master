@@ -1,0 +1,9 @@
+/* ---------- 共通のたこヤンアイコン（仮） ---------- */
+.takoyan-icon {
+  background-image: url('../../public/img/takoyan.png'); /* たこヤンのイラストを指定 */
+  width: 200px; /* アイコンの幅 */
+  height: 200px; /* アイコンの高さ */
+  margin-bottom: 20px;
+  background-size: cover; /* 画像をアイコンのサイズに合わせて拡大縮小 */
+  background-position: center; /* 画像を中央に配置 */
+}

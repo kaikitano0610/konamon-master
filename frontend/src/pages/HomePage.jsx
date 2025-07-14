@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css'; 
-import '../styles/tmp-takoyan.css';
+import '../styles/takoyan.css';
 function HomePage() {
   const navigate = useNavigate();
 
