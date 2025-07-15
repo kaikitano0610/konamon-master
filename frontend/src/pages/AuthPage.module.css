@@ -1,0 +1,114 @@
+/* frontend/src/pages/AuthPage.module.css */
+
+.auth-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #add8e6; /* 背景色 */
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.auth-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 30px 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 380px; /* モバイル前提の最大幅 */
+  box-sizing: border-box;
+}
+
+.auth-title {
+  color: #1976d2; /* 濃い青色のタイトル */
+  margin-bottom: 25px;
+  font-size: 2em;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* 入力フィールド間のスペース */
+}
+
+.auth-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #90caf9; /* 薄い青色の枠線 */
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box; /* パディングを含めて幅を計算 */
+}
+
+.auth-input::placeholder {
+  color: #90caf9;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #2196f3; /* フォーカス時の枠線色 */
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2); /* フォーカス時の影 */
+}
+
+.error-message {
+  color: #d32f2f; /* 赤色のエラーメッセージ */
+  font-size: 0.9em;
+  margin-top: -5px; /* 上の要素との間隔を調整 */
+  margin-bottom: 10px;
+}
+
+.auth-button {
+  background-color: #2196f3; /* 青色のボタン */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.auth-button:hover {
+  background-color: #1976d2; /* ホバー時の濃い青色 */
+  transform: translateY(-2px);
+}
+
+.auth-link-text {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.auth-link {
+  color: #1976d2; /* リンクの青色 */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* レスポンシブ対応 (Tablet以上) */
+@media (min-width: 600px) {
+  .auth-card {
+    padding: 40px 35px;
+    max-width: 450px; /* タブレット以上で少し幅を広げる */
+  }
+
+  .auth-title {
+    font-size: 2.5em;
+  }
+
+  .auth-input,
+  .auth-button {
+    padding: 15px;
+    font-size: 1.05em;
+  }
+}
