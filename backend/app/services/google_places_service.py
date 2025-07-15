@@ -33,19 +33,22 @@ def text_search(query: str, food_type: str = "", limit=5):
     results = resp.json().get("results", [])[:limit]
     for r in results:
         # 基本情報を取得
+        photo_ref = (r.get("photos", [{}])[0].get("photo_reference")
+                     if r.get("photos") else None)
+        
         shop_data = {
             "place_id": r.get("place_id"),
             "name":      r.get("name"),
             "address":   r.get("formatted_address"),
-            "photo_ref": (r.get("photos", [{}])[0].get("photo_reference")
-                          if r.get("photos") else None),
+            "photo_url": (f"{PHOTO_API}?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
+                          if photo_ref and GOOGLE_API_KEY else None),
         }
         
         # 詳細情報を取得（営業時間のみ）
         place_id = r.get("place_id")
         if place_id:
             try:
-                detail = get_place_detail(place_id)
+                detail = get_place_detail(place_id, lang="ja", photo_ref=photo_ref)
                 if detail:
                     shop_data["opening_hours"] = detail.get("opening_hours")
                 else:
@@ -60,11 +63,12 @@ def text_search(query: str, food_type: str = "", limit=5):
     return shops
 
 
-def get_place_detail(place_id: str, lang="ja"):
+def get_place_detail(place_id: str, lang="ja", photo_ref=None):
     """
     Place Details API で詳細取得
     戻り値: dict（店舗詳細） / None
     """
+    
     resp = requests.get(DETAILS_API, params={
         "place_id": place_id,
         "language": lang,
@@ -77,8 +81,10 @@ def get_place_detail(place_id: str, lang="ja"):
     if not result:
         return None
 
-    photo_ref = (result.get("photos", [{}])[0].get("photo_reference")
-                 if result.get("photos") else None)
+    # text_searchから渡されたphoto_refを優先的に使用
+    if not photo_ref:
+        photo_ref = (result.get("photos", [{}])[0].get("photo_reference")
+                     if result.get("photos") else None)
 
     # 電話番号を取得（formatted_phone_numberまたはinternational_phone_number）
     phone = result.get("formatted_phone_number") or result.get("international_phone_number")
