@@ -1,83 +1,93 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from './RecipeListPage.module.css'; // CSS Modules をインポート
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import styles from './RecipeListPage.module.css'; 
 
 function RecipeListPage() {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // 仮のレシピデータ（APIから取得するまでの代替）
-  const [recipes, setRecipes] = useState([
-    {
-      id: 'recipe1',
-      title: 'だし醤油風味たこ焼き〜大阪〜',
-      photoUrl: 'https://via.placeholder.com/60?text=Img1', // 仮の画像URL
-    },
-    {
-      id: 'recipe2',
-      title: 'おうちたこ焼き',
-      photoUrl: 'https://via.placeholder.com/60?text=Img2',
-    },
-    {
-      id: 'recipe3',
-      title: '米粉たこ焼き',
-      photoUrl: 'https://via.placeholder.com/60?text=Img3',
-    },
-    {
-      id: 'recipe4',
-      title: 'エビアボカドチーズのたこ焼き',
-      photoUrl: 'https://via.placeholder.com/60?text=Img4',
-    },
-    {
-      id: 'recipe5',
-      title: 'たこなしタコ焼き',
-      photoUrl: 'https://via.placeholder.com/60?text=Img5',
-    },
-    {
-      id: 'recipe6',
-      title: 'ふわとろお好み焼き',
-      photoUrl: 'https://via.placeholder.com/60?text=Img6',
-    },
-  ]);
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  // 「レシピを追加する」ボタンのハンドラ
-  const handleAddRecipeClick = () => {
-    navigate('/recipes/post'); // レシピ投稿画面へ遷移
+        // レシピ一覧の取得には認証が不要なので、トークンはここでは送りません
+        const response = await fetch('http://localhost:5001/api/recipes/');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setRecipes(data);
+      } catch (err) {
+        console.error('レシピの取得中にエラーが発生しました:', err);
+        setError('レシピの読み込みに失敗しました。');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []); // 空の依存配列でコンポーネトマウント時に一度だけ実行
+
+  const handleRecipeClick = (recipeId) => {
+    navigate(`/recipes/${recipeId}`); // レシピ詳細ページへ遷移
   };
 
-  // 「もっと見る」ボタンのハンドラ (現状は仮の動作)
-  const handleLoadMoreClick = () => {
-    console.log("もっと見るボタンがクリックされました。");
-    // ここでAPIから追加データを取得するロジックを実装
-    // 例: setRecipes([...recipes, ...newData]);
-  };
+  if (loading) {
+    return (
+      <div className={styles['recipe-list-container']}>
+        <p className={styles['loading-message']}>レシピを読み込み中...🍳</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles['recipe-list-container']}>
+        <p className={styles['error-message']}>{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className={styles['recipe-list-page-container']}>
-      <h1 className={styles['page-title']}>レシピ投稿一覧</h1>
-
-      <button className={styles['add-recipe-button']} onClick={handleAddRecipeClick}>
-        レシピを追加する
-      </button>
-
-      {recipes.length === 0 ? (
-        <p className={styles['no-recipes-message']}>まだレシピが投稿されていません。</p>
-      ) : (
-        <ul className={styles['recipe-list']}>
-          {recipes.map((recipe) => (
-            <li key={recipe.id} className={styles['recipe-item']}>
-              {/* レシピ項目全体が詳細画面へのリンクになる */}
-              <Link to={`/recipes/${recipe.id}`} className={styles['recipe-link']}>
-                <span className={styles['recipe-title']}>{recipe.title}</span>
-                <img src={recipe.photoUrl} alt={recipe.title} className={styles['recipe-photo']} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <button className={styles['load-more-button']} onClick={handleLoadMoreClick}>
-        もっと見る
-      </button>
+    <div className={styles['recipe-list-container']}>
+      <h1 className={styles['page-title']}>みんなのレシピ</h1>
+      <div className={styles['recipe-cards-grid']}>
+        {recipes.length > 0 ? (
+          recipes.map((recipe) => (
+            <div
+              key={recipe.id}
+              className={styles['recipe-card']}
+              onClick={() => handleRecipeClick(recipe.id)}
+            >
+              {recipe.photo_url && (
+                <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-image']} />
+              )}
+              {!recipe.photo_url && (
+                <div className={styles['no-image-placeholder']}>画像なし</div>
+              )}
+              <h2 className={styles['recipe-title']}>{recipe.title}</h2>
+              <div className={styles['recipe-meta']}>
+                <p>難易度: {recipe.difficulty || '不明'}</p>
+                <p>準備時間: {recipe.prep_time_minutes}分</p>
+                <p>調理時間: {recipe.cook_time_minutes}分</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className={styles['no-recipes-message']}>まだレシピがありません。</p>
+        )}
+      </div>
+      {/* ログインしていればレシピ投稿ボタンを表示するなどのロジックを追加可能 */}
+      <Link to="/recipes/post" className={styles['add-recipe-button']}>
+        レシピを投稿する
+      </Link>
     </div>
   );
 }
