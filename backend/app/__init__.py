@@ -6,6 +6,7 @@ from backend.app.api.shops import shops_bp
 from backend.app.api.auth import auth_bp
 from backend.app.extensions import db, migrate
 import os
+from backend.app.api.nearby import nearby_bp
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +25,7 @@ def create_app():
     # Blueprint登録
     app.register_blueprint(shops_bp, url_prefix='/api/shops')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(nearby_bp, url_prefix='/api/shops')
 
     @app.route('/')
     def home():
