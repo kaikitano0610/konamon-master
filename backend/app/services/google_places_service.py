@@ -35,7 +35,7 @@ def text_search(query: str, food_type: str = "", limit=5):
     Text Search API でクエリ検索 → 上位 `limit` 件を返す
     query: ユーザーの気分
     food_type: 食べ物の種類
-    戻り値: [{'place_id': ..., 'name': ..., 'address': ..., 'photo_url': ...}, ...]
+    戻り値: [{'place_id': ..., 'name': ..., 'address': ..., 'rating': ..., 'user_ratings_total': ..., 'photo_url': ...}, ...]
     """
     search_query = f"{food_type} {query}".strip()
 
@@ -58,6 +58,8 @@ def text_search(query: str, food_type: str = "", limit=5):
             "place_id": r.get("place_id"),
             "name":      r.get("name"),
             "address":   r.get("formatted_address"),
+            "rating":    r.get("rating"),  # 評価（1.0～5.0）
+            "user_ratings_total": r.get("user_ratings_total"),  # 評価数
             "photo_url": (f"{PHOTO_API}?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
                           if photo_ref and GOOGLE_API_KEY else None),
         }
