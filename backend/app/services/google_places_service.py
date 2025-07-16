@@ -68,7 +68,7 @@ def get_place_detail(place_id: str, lang="ja"):
     resp = requests.get(DETAILS_API, params={
         "place_id": place_id,
         "language": lang,
-        "fields": "name,formatted_address,formatted_phone_number,international_phone_number,opening_hours,photos",
+        "fields": "name,formatted_address,formatted_phone_number,international_phone_number,opening_hours,photos,rating,user_ratings_total",
         "key": GOOGLE_API_KEY,
     }, timeout=10)
     resp.raise_for_status()
@@ -90,12 +90,18 @@ def get_place_detail(place_id: str, lang="ja"):
     opening_hours_info = result.get("opening_hours", {})
     opening_hours = opening_hours_info.get("weekday_text")
 
+    # 評価情報を取得
+    rating = result.get("rating")  # 1.0～5.0の評価
+    user_ratings_total = result.get("user_ratings_total")  # 評価数
+
     return {
         "place_id": place_id,
         "name": result.get("name"),
         "address": result.get("formatted_address"),
         "phone": phone,
         "opening_hours": opening_hours,
+        "rating": rating,
+        "user_ratings_total": user_ratings_total,
         "photo_url": (f"{PHOTO_API}?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
                       if photo_ref and GOOGLE_API_KEY else None)
     }
