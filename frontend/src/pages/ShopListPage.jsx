@@ -55,12 +55,12 @@ function ShopListPage() {
             <p className={styles['shop-address']}>住所: {shop.address}</p>
             {shop.phone && <p className={styles['shop-phone']}>電話: {shop.phone}</p>}
             <div className={styles['shop-hours']}>
-              <h3>営業時間:</h3> {/* Changed from "今日の営業時間" */}
+              <h3>営業時間:</h3>
               <p>{getTodayOpeningHours(shop.opening_hours)}</p>
             </div>
-            {shop.photo_ref && (
+            {shop.photo_url && ( // ここを修正
               <img
-                src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${shop.photo_ref}&key=YOUR_Maps_API_KEY`}
+                src={shop.photo_url} // ここを修正
                 alt={`${shop.name}の外観`}
                 className={styles['shop-photo']}
               />
