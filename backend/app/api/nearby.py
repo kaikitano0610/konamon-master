@@ -63,7 +63,7 @@ def is_currently_open(opening_hours_periods):
     
     return False
 
-@nearby_bp.route('/nearby', methods=['GET'])
+@nearby_bp.route('/', methods=['GET'])
 def get_nearby_open_shops():
     """
     近くの開いている店舗を取得するエンドポイント

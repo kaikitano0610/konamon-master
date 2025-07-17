@@ -25,7 +25,7 @@ def create_app():
     # Blueprint登録
     app.register_blueprint(shops_bp, url_prefix='/api/shops')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(nearby_bp, url_prefix='/api/shops')
+    app.register_blueprint(nearby_bp, url_prefix='/api/nearby')
 
     @app.route('/')
     def home():
