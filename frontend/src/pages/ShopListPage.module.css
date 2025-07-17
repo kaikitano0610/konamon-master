@@ -1,0 +1,164 @@
+/* frontend/src/pages/ShopListPage.module.css */
+
+.shop-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #add8e6; /* Light blue background */
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.shop-list-title {
+  color: #1976d2; /* Darker blue for title */
+  margin-bottom: 30px;
+  font-size: 1.8em; /* Slightly smaller for mobile */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.no-results-title {
+  color: #1976d2;
+  font-size: 1.8em;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.shop-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column for mobile */
+  gap: 20px; /* Slightly reduced gap */
+  width: 100%;
+  max-width: 450px; /* Max width for mobile-first cards */
+  margin-bottom: 30px;
+}
+
+.shop-card {
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Slightly smaller shadow */
+  padding: 20px; /* Slightly reduced padding */
+  text-align: left;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  border: 1px solid #90caf9; /* Light blue border */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.shop-card:hover {
+  transform: translateY(-5px); /* Slightly reduced lift on hover */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.shop-name {
+  color: #1565c0; /* Even darker blue for shop name */
+  margin-top: 0;
+  margin-bottom: 12px; /* Reduced margin */
+  font-size: 1.6em; /* Slightly smaller font */
+  border-bottom: 1px solid #bbdefb; /* Lighter blue border */
+  padding-bottom: 8px;
+}
+
+.shop-address,
+.shop-phone {
+  font-size: 0.95em; /* Slightly smaller font */
+  margin-bottom: 6px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.shop-hours h3 {
+  color: #1976d2;
+  margin-top: 15px;
+  margin-bottom: 8px; /* Reduced margin */
+  font-size: 1em;
+}
+
+.shop-hours p {
+  background-color: #e3f2fd; /* Very light blue */
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  color: #444;
+  margin-top: 0;
+}
+
+.shop-photo {
+  width: 100%;
+  height: 180px; /* Slightly reduced height for mobile */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-top: 15px;
+  border: 1px solid #64b5f6; /* Medium blue border */
+}
+
+.back-button {
+  background-color: #2196f3; /* Medium blue for button */
+  color: white;
+  padding: 10px 20px; /* Slightly reduced padding */
+  border: none;
+  border-radius: 25px; /* Slightly smaller border-radius */
+  font-size: 1em; /* Slightly smaller font */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:hover {
+  background-color: #1976d2; /* Darker blue on hover */
+  transform: translateY(-2px);
+}
+
+/* Tablet and larger screens */
+@media (min-width: 600px) {
+  .shop-list-title {
+    font-size: 2.5em;
+  }
+
+  .shop-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two columns on larger mobile/tablet */
+    max-width: 900px; /* Increased max width */
+  }
+
+  .shop-card {
+    padding: 25px;
+  }
+
+  .shop-name {
+    font-size: 1.8em;
+  }
+
+  .shop-address,
+  .shop-phone {
+    font-size: 1em;
+  }
+
+  .shop-hours h3 {
+    font-size: 1.1em;
+  }
+
+  .shop-hours p {
+    font-size: 0.95em;
+  }
+
+  .shop-photo {
+    height: 200px;
+  }
+
+  .back-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+  }
+}
+
+/* Desktop screens */
+@media (min-width: 1024px) {
+  .shop-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Three columns on desktop */
+    max-width: 1200px;
+  }
+}

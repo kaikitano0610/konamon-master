@@ -204,6 +204,10 @@ function NearbyPage() {
     <div className={styles['nearby-page-container']}>
       {step === 0 && (
         <div className={styles['food-select-section']}>
+          <div className={styles["dialog-bubble"]}>
+            <p className={styles["takoyan-dialog-text"]}>ほな、近所のお店から探そか！</p>
+            <p className={styles["takoyan-dialog-text"]}>どっちを探しましょ？</p>
+          </div>
           <div className="takoyan-icon"></div>
           <h1 className={styles['food-select-title']}>粉もん選択</h1>
           <div className={styles['food-select-buttons']}>

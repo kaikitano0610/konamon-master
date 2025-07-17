@@ -1,0 +1,150 @@
+/* frontend/src/pages/ShopDetailPage.module.css */
+
+.shop-detail-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #add8e6; /* Light blue background */
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.loading-message,
+.error-message,
+.no-data-message {
+  color: #1976d2;
+  font-size: 1.2em;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.shop-name {
+  color: #1565c0; /* Darker blue for name */
+  margin-bottom: 20px;
+  font-size: 2em; /* Adjusted for mobile */
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #90caf9;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+}
+
+.shop-detail-content {
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  text-align: left;
+  width: 100%;
+  max-width: 450px; /* Max width for mobile */
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.shop-photo-detail {
+  width: 100%;
+  height: 250px; /* Consistent height */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #64b5f6;
+}
+
+.no-photo-message {
+  color: #555;
+  text-align: center;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.detail-item {
+  font-size: 1em;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #444;
+}
+
+.detail-item strong {
+  color: #1976d2;
+}
+
+.opening-hours-detail {
+  margin-top: 20px;
+  border-top: 1px solid #bbdefb;
+  padding-top: 15px;
+}
+
+.opening-hours-detail h3 {
+  color: #1976d2;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.today-hours {
+  background-color: #e3f2fd; /* Very light blue for today's highlight */
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  font-size: 1.05em;
+  color: #1a237e; /* Dark blue text */
+}
+
+.full-hours-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.full-hours-list li {
+  background-color: #f0f8ff; /* Slightly lighter blue for list items */
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-size: 0.95em;
+  color: #444;
+}
+
+.full-hours-list li.highlight-today {
+  background-color: #bbdefb; /* Medium light blue for current day highlight */
+  font-weight: bold;
+  color: #0d47a1; /* Dark blue */
+}
+
+.back-button {
+  background-color: #2196f3; /* Medium blue for button */
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.back-button:hover {
+  background-color: #1976d2; /* Darker blue on hover */
+  transform: translateY(-2px);
+}
+
+/* Tablet and larger screens */
+@media (min-width: 600px) {
+  .shop-name {
+    font-size: 2.5em;
+  }
+
+  .shop-detail-content {
+    max-width: 700px; /* Wider for tablets */
+    padding: 30px;
+  }
+
+  .shop-photo-detail {
+    height: 300px;
+  }
+}

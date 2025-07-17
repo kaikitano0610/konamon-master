@@ -38,9 +38,6 @@ function Navbar() {
             <Link to={"/login"} onClick={() => setIsOpen(false)}>ログイン</Link>
           </li>
           <li>
-            <Link to={"/signin"} onClick={() => setIsOpen(false)}>サインイン</Link>
-          </li>
-          <li>
             <Link to={"/config"} onClick={() => setIsOpen(false)}>設定</Link>
           </li>
         </ul>
