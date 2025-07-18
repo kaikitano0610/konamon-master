@@ -1,133 +1,228 @@
-/* frontend/src/js/pages/RecipeDetailPage.module.css */
-
-.detail-page-container {
+.detail-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  background-color: #add8e6; /* 水色系 */
-  min-height: calc(100vh - var(--navbar-height, 0px));
-  box-sizing: border-box;
+  padding: 15px; /* モバイル向けに調整 */
+  background-color: #add8e6; /* 背景色 */
+  min-height: 100vh;
+  font-family: 'Arial', sans-serif;
   color: #333;
+  box-sizing: border-box;
+}
+
+.loading-message,
+.error-message {
+  color: #1976d2;
+  font-size: 1.1em; /* モバイル向けに調整 */
+  text-align: center;
+  margin-top: 40px; /* モバイル向けに調整 */
+}
+
+.recipe-detail-card {
+  background-color: #ffffff;
+  border-radius: 12px; /* 角丸を調整 */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* 影を調整 */
+  padding: 20px; /* モバイル向けに調整 */
+  width: 100%;
+  max-width: 450px; /* モバイルでの最大幅 */
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .recipe-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 25px;
+  color: #1565c0;
+  margin-top: 0;
+  margin-bottom: 20px; /* マージンを調整 */
+  font-size: 2em; /* モバイル向けに調整 */
   text-align: center;
+  border-bottom: 1px solid #bbdefb; /* 細いボーダーに */
+  padding-bottom: 10px; /* パディングを調整 */
 }
 
-.media-container {
+.recipe-image {
   width: 100%;
-  max-width: 600px; /* メディアの最大幅 */
-  margin-bottom: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.recipe-photo,
-.recipe-video {
-  width: 100%;
-  height: auto;
+  max-height: 250px; /* 画像の最大高さを調整 */
+  object-fit: contain;
+  border-radius: 8px; /* 角丸を調整 */
+  margin-bottom: 20px; /* マージンを調整 */
+  border: 1px solid #90caf9;
   display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.recipe-info-section {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+.no-image-placeholder {
   width: 100%;
-  max-width: 600px;
-  text-align: left;
+  max-height: 250px;
+  min-height: 150px; /* 最小高さを調整 */
+  background-color: #e0f2f7;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #616161;
+  font-size: 1.1em;
+  border: 1px dashed #90caf9;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section {
+  margin-bottom: 20px; /* マージンを調整 */
+  padding: 12px; /* パディングを調整 */
+  background-color: #f8fafd;
+  border-radius: 8px; /* 角丸を調整 */
+  border: 1px solid #e3f2fd;
 }
 
 .section-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #4CAF50; /* 緑系 */
-  margin-bottom: 10px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 5px;
+  color: #1976d2;
+  font-size: 1.4em; /* フォントサイズを調整 */
+  margin-top: 0;
+  margin-bottom: 8px; /* マージンを調整 */
+  padding-bottom: 4px; /* パディングを調整 */
+  border-bottom: 1px dashed #90caf9;
 }
 
-.recipe-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  white-space: pre-wrap; /* 改行を保持 */
+.section-content {
+  font-size: 1em; /* フォントサイズを調整 */
+  line-height: 1.6; /* 行間を調整 */
+  color: #444;
+  white-space: pre-wrap;
 }
 
-.recipe-attributes {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
+.video-container {
+  position: relative;
   width: 100%;
-  max-width: 600px;
-  text-align: left;
+  padding-bottom: 56.25%; /* 16:9 アスペクト比 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px; /* 角丸を調整 */
 }
 
-.recipe-attributes p {
-  margin: 5px 0;
-  font-size: 1rem;
+.recipe-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
 }
 
-.attribute-value {
-  font-weight: bold;
-  color: #007bff; /* 青系 */
+.meta-info {
+  margin-top: 20px; /* マージンを調整 */
+  padding-top: 15px; /* パディングを調整 */
+  border-top: 1px solid #bbdefb;
+  font-size: 0.95em; /* フォントサイズを調整 */
+  color: #555;
+}
+
+.meta-info p {
+  margin-bottom: 6px; /* マージンを調整 */
+}
+
+.meta-info strong {
+  color: #1976d2;
+}
+
+.user-id-text {
+  font-size: 0.85em; /* フォントサイズを調整 */
+  color: #777;
+  margin-top: 10px; /* マージンを調整 */
+  text-align: right;
+}
+
+.back-button {
+  background-color: #2196f3;
+  color: white;
+  padding: 10px 20px; /* パディングを調整 */
+  border: none;
+  border-radius: 25px; /* 角丸を調整 */
+  font-size: 1em; /* フォントサイズを調整 */
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease; /* トランジションを短く */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 25px; /* マージンを調整 */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.back-button:hover {
+  background-color: #1976d2;
+  transform: translateY(-1px);
+}
+
+/* --- モダンなボタンデザイン --- */
+.action-buttons-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px; /* ボタン間の余白を調整 */
+  margin-bottom: 15px; /* タイトルとの距離を調整 */
+  width: 100%;
+  padding-right: 5px; /* 右端に少し余白 */
+}
+
+.edit-button,
+.delete-button {
+  padding: 10px 18px; /* パディングを増やしてタッチしやすく */
+  border-radius: 25px; /* より丸みを帯びた形に */
+  font-size: 0.9em; /* フォントサイズを調整 */
+  font-weight: 600; /* 少し太字に */
+  cursor: pointer;
+  transition: all 0.3s ease; /* 滑らかなトランジション */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* 控えめなシャドウ */
+  border: none; /* ボーダーなし */
+  display: inline-flex; /* アイコンとテキストの配置を柔軟に */
+  align-items: center;
+  justify-content: center;
 }
 
 .edit-button {
-  background-color: #ffeb3b; /* 黄色系 */
-  color: #333;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 25px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-decoration: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-top: 10px;
-  display: inline-block; /* リンクとして中央寄せするため */
+  color: #4A4A4A; /* 濃いグレーのテキスト */
 }
 
 .edit-button:hover {
-  background-color: #fdd835;
+  transform: translateY(-2px); /* わずかに浮き上がる */
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15); /* ホバーでシャドウを強調 */
+}
+
+.delete-button {
+  background-color: #EF5350; /* マテリアルデザインの赤 */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #D32F2F; /* ホバーで少し濃く */
   transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
-.edit-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.error-message, .not-found-message {
-  color: red;
-  font-size: 1.2rem;
+/* --- 成功メッセージバナー --- */
+.success-message-banner {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  font-size: 0.95em;
   text-align: center;
-  margin-top: 50px;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+  max-width: 90%;
+  box-sizing: border-box;
 }
 
-/* デスクトップ向け調整 */
-@media (min-width: 768px) {
-  .detail-page-container {
-    padding: 30px;
-  }
-
-  .recipe-title {
-    font-size: 2.5rem;
-  }
-
-  .media-container {
-    width: 80%; /* デスクトップで少し広げる */
-  }
-
-  .recipe-info-section, .recipe-attributes {
-    padding: 30px;
-  }
+.success-message-banner.hide {
+  opacity: 0;
 }
+
+/* @media (max-width: 768px) は削除済み */

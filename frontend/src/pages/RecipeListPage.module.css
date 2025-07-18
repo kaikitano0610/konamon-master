@@ -135,10 +135,95 @@
   }
 }
 
-/* デスクトップ */
-@media (min-width: 1024px) {
-  .recipe-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* デスクトップで3列以上 */
-    max-width: 1200px;
-  }
+
+.recipe-card {
+  /* 既存のスタイル */
+  position: relative; /* ドロップダウンメニューの配置基準にするため */
+}
+
+.dropdown-menu-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10; /* 他の要素より手前に表示 */
+}
+
+.ellipsis-button {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.ellipsis-button:hover {
+  color: #1976d2;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px; /* ボタンの下に表示 */
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 角丸に合わせる */
+}
+
+.dropdown-item {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.95em;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+  color: #1976d2;
+}
+
+.dropdown-item:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.dropdown-item:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.success-message-banner {
+  position: fixed; /* 画面下部に固定 */
+  bottom: 20px; /* 下からの距離 */
+  left: 50%; /* 水平中央に配置 */
+  transform: translateX(-50%); /* 中央寄せの微調整 */
+  background-color: #4CAF50; /* 緑色の背景 */
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 100; /* 他の要素より手前に表示 */
+  font-size: 1.1em;
+  text-align: center;
+  white-space: nowrap; /* テキストの折り返しを防ぐ */
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out; /* フェードアウト用 */
+}
+
+/* メッセージが非表示になる際にアニメーションさせる場合 */
+.success-message-banner.hide {
+  opacity: 0;
 }

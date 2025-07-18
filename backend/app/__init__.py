@@ -9,6 +9,7 @@ from backend.app.api.recipes import recipes_bp
 from backend.app.extensions import db, migrate
 import os
 from backend.app.api.nearby import nearby_bp
+import datetime
 
 def create_app():
     app = Flask(__name__)
@@ -24,6 +25,8 @@ def create_app():
     # --- JWT_SECRET_KEY の設定 ---
     # .env.backend ファイルに JWT_SECRET_KEY=あなたの強力なシークレットキー を追加してください
     app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY") # JWTの署名に使用する秘密鍵
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
     # トークンの有効期限 (例: 1時間)
     # from datetime import timedelta
     # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
