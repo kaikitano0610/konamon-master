@@ -1,122 +1,217 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // useParams をインポート
-import styles from './RecipeDetailPage.module.css'; // CSS Modules をインポート
+import { useParams, useNavigate, useLocation } from 'react-router-dom'; // useLocationを追加
+import styles from './RecipeDetailPage.module.css';
 
 function RecipeDetailPage() {
-  const { recipeId } = useParams(); // URLから recipeId を取得
+  const { recipeId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation(); // useLocationフックを使用
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null); // ログインユーザーID
+  const [successMessage, setSuccessMessage] = useState(null); // 成功メッセージ用のstate
 
-  // 仮のレシピデータ（実際のAPI呼び出しの代替）
-  const hardcodedRecipes = [
-    {
-      id: 'recipe1',
-      user_id: 1,
-      title: 'だし醤油風味たこ焼き〜大阪〜',
-      ingredients: 'たこ、小麦粉、卵、だし醤油、ねぎ、紅しょうが',
-      instructions: '1. 材料を混ぜる。2. たこ焼き器で焼く。3. だし醤油をかける。',
-      photo_url: 'https://via.placeholder.com/400x300/FFD700/000000?text=Takoyaki1',
-      video_url: null, // 動画がない場合
-      difficulty: 'medium',
-      prep_time_minutes: 15,
-      cook_time_minutes: 20,
-    },
-    {
-      id: 'recipe2',
-      user_id: 2,
-      title: 'おうちたこ焼き',
-      ingredients: 'たこ焼き粉、たこ、キャベツ、卵、水',
-      instructions: '1. 粉を溶く。2. 具材を切る。3. たこ焼き器で焼く。',
-      photo_url: 'https://via.placeholder.com/400x300/FF6347/FFFFFF?text=Takoyaki2',
-      video_url: 'https://www.w3schools.com/html/mov_bbb.mp4', // 仮の動画URL
-      difficulty: 'easy',
-      prep_time_minutes: 10,
-      cook_time_minutes: 15,
-    },
-    {
-      id: 'recipe3',
-      user_id: 1,
-      title: '米粉たこ焼き',
-      ingredients: '米粉、たこ、だし汁、卵',
-      instructions: '1. 米粉と卵、だし汁を混ぜる。2. たこ焼き器で焼く。',
-      photo_url: 'https://via.placeholder.com/400x300/8A2BE2/FFFFFF?text=Takoyaki3',
-      video_url: null,
-      difficulty: 'hard',
-      prep_time_minutes: 20,
-      cook_time_minutes: 25,
-    },
-    // ... 他のレシピデータも追加
-  ];
+  // 投稿/編集ページから渡されたメッセージがあるかチェックし、表示・非表示を管理
+  useEffect(() => {
+    if (location.state && location.state.message) {
+      setSuccessMessage(location.state.message);
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state, navigate, location.pathname]);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    // ログインユーザーIDをlocalStorageから取得
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      setCurrentUserId(userId);
+    }
 
-    // URLから取得したrecipeIdに一致するレシピを探す
-    const foundRecipe = hardcodedRecipes.find(r => r.id === recipeId);
+    const fetchRecipeDetail = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    // 実際のAPI呼び出しのシミュレーション
-    const timer = setTimeout(() => {
-      if (foundRecipe) {
-        setRecipe(foundRecipe);
-      } else {
-        setError('お探しのレシピは見つかりませんでした。');
+        const response = await fetch(`http://localhost:5001/api/recipes/${recipeId}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('レシピが見つかりませんでした。');
+          }
+          throw new Error(`レシピの取得に失敗しました: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setRecipe(data);
+      } catch (err) {
+        console.error('レシピ詳細の取得中にエラーが発生しました:', err);
+        setError(err.message || 'レシピの詳細を読み込めませんでした。');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 500); // 0.5秒のロード時間シミュレーション
+    };
 
-    return () => clearTimeout(timer); // クリーンアップ
-  }, [recipeId]); // recipeId が変わったら再実行
+    fetchRecipeDetail();
+  }, [recipeId]); // recipeIdが変更されたら再フェッチ
+
+  // レシピ削除ハンドラ (RecipeListPageから移植)
+  const handleDeleteRecipe = async () => {
+    if (!window.confirm('本当にこのレシピを削除しますか？')) {
+      return;
+    }
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('ログインが必要です。');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/recipes/${recipeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('レシピが正常に削除されました。');
+        navigate('/recipes', { state: { message: 'レシピを削除しました！' } }); // 削除後、一覧ページにリダイレクト
+      } else {
+        const errorData = await response.json();
+        alert(`レシピの削除に失敗しました: ${errorData.message || response.statusText}`);
+      }
+    } catch (err) {
+      console.error('レシピ削除中にエラーが発生しました:', err);
+      alert('サーバーとの通信中にエラーが発生しました。');
+    }
+  };
+
+  // レシピ編集ハンドラ
+  const handleEditRecipe = () => {
+    navigate(`/recipes/${recipeId}/edit`);
+  };
 
   if (loading) {
-    return <div className={styles['detail-page-container']}><p>レシピを読み込み中やで！</p></div>;
+    return (
+      <div className={styles['detail-container']}>
+        <p className={styles['loading-message']}>レシピを読み込み中... 😋</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className={styles['detail-page-container']}><p className={styles['error-message']}>エラー発生: {error}</p></div>;
+    return (
+      <div className={styles['detail-container']}>
+        <p className={styles['error-message']}>{error}</p>
+        <button onClick={() => navigate('/recipes')} className={styles['back-button']}>
+          レシピ一覧に戻る
+        </button>
+      </div>
+    );
   }
 
   if (!recipe) {
-    return <div className={styles['detail-page-container']}><p className={styles['not-found-message']}>レシピが見つからへんかったわ...</p></div>;
+    return (
+      <div className={styles['detail-container']}>
+        <p className={styles['error-message']}>レシピデータがありません。</p>
+        <button onClick={() => navigate('/recipes')} className={styles['back-button']}>
+          レシピ一覧に戻る
+        </button>
+      </div>
+    );
   }
 
+  // 日付のフォーマット関数
+  const formatDateTime = (isoString) => {
+    if (!isoString) return '不明';
+    const date = new Date(isoString);
+    return date.toLocaleString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const isOwner = currentUserId && String(recipe.user_id) === currentUserId; // 自分のレシピかどうかを判定
+
   return (
-    <div className={styles['detail-page-container']}>
-      <h1 className={styles['recipe-title']}>{recipe.title}</h1>
-
-      {/* 写真または動画の表示 */}
-      {recipe.video_url ? (
-        <div className={styles['media-container']}>
-          <video controls className={styles['recipe-video']}>
-            <source src={recipe.video_url} type="video/mp4" />
-            お使いのブラウザは動画をサポートしていません。
-          </video>
+    <div className={styles['detail-container']}>
+      {successMessage && (
+        <div className={styles['success-message-banner']}>
+          {successMessage}
         </div>
-      ) : recipe.photo_url ? (
-        <div className={styles['media-container']}>
-          <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-photo']} />
+      )}
+      <div className={styles['recipe-detail-card']}>
+        <h1 className={styles['recipe-title']}>{recipe.title}</h1>
+
+        {/* 編集・削除ボタンのコンテナ */}
+        {isOwner && (
+          <div className={styles['action-buttons-container']}>
+            <button onClick={handleEditRecipe} className={styles['edit-button']}>
+              編集
+            </button>
+            <button onClick={handleDeleteRecipe} className={styles['delete-button']}>
+              削除
+            </button>
+          </div>
+        )}
+
+        {recipe.photo_url && (
+          <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-image']} />
+        )}
+        {!recipe.photo_url && (
+          <div className={styles['no-image-placeholder']}>画像なし</div>
+        )}
+
+        <div className={styles['section']}>
+          <h2 className={styles['section-title']}>材料</h2>
+          <p className={styles['section-content']}>{recipe.ingredients}</p>
         </div>
-      ) : null}
-      <div className={styles['recipe-attributes']}>
-        <p>難易度: <span className={styles['attribute-value']}>{recipe.difficulty === 'easy' ? '初心者向け' : recipe.difficulty === 'medium' ? '普通' : '達人向け'}</span></p>
-        <p>準備時間: <span className={styles['attribute-value']}>{recipe.prep_time_minutes} 分</span></p>
-        <p>調理時間: <span className={styles['attribute-value']}>{recipe.cook_time_minutes} 分</span></p>
+
+        <div className={styles['section']}>
+          <h2 className={styles['section-title']}>作り方</h2>
+          <p className={styles['section-content']}>{recipe.instructions}</p>
+        </div>
+
+        {recipe.video_url && (
+          <div className={styles['section']}>
+            <h2 className={styles['section-title']}>動画</h2>
+            <div className={styles['video-container']}>
+              <iframe
+                src={recipe.video_url.includes('youtube.com/watch?v=') ? recipe.video_url.replace("watch?v=", "embed/") : recipe.video_url}
+                title="Recipe Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className={styles['recipe-video']}
+              ></iframe>
+            </div>
+          </div>
+        )}
+
+        <div className={styles['meta-info']}>
+          <p><strong>難易度:</strong> {recipe.difficulty || '不明'}</p>
+          <p><strong>準備時間:</strong> {recipe.prep_time_minutes}分</p>
+          <p><strong>調理時間:</strong> {recipe.cook_time_minutes}分</p>
+          <p><strong>投稿日時:</strong> {formatDateTime(recipe.created_at)}</p>
+          {recipe.updated_at && recipe.created_at !== recipe.updated_at && (
+            <p><strong>更新日時:</strong> {formatDateTime(recipe.updated_at)}</p>
+          )}
+          <p className={styles['user-id-text']}>投稿ユーザーID: {recipe.user_id}</p>
+        </div>
+
+        <button onClick={() => navigate('/recipes')} className={styles['back-button']}>
+          レシピ一覧に戻る
+        </button>
       </div>
-
-      <div className={styles['recipe-info-section']}>
-        <h2 className={styles['section-title']}>材料</h2>
-        <p className={styles['recipe-text']}>{recipe.ingredients}</p>
-      </div>
-
-      <div className={styles['recipe-info-section']}>
-        <h2 className={styles['section-title']}>作り方</h2>
-        <p className={styles['recipe-text']}>{recipe.instructions}</p>
-      </div>
-
-
-      {/* 編集ボタンなど */}
-      <Link to={`/recipes/${recipe.id}/edit`} className={styles['edit-button']}>レシピを編集</Link>
     </div>
   );
 }

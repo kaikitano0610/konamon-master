@@ -6,18 +6,18 @@ function RecipePostPage() {
   const navigate = useNavigate();
 
   // フォームの入力状態を管理
-  const [recipeData, setRecipeData] = useState({ // formDataからrecipeDataに名称変更
+  const [recipeData, setRecipeData] = useState({
     title: '',
     ingredients: '',
     instructions: '',
     difficulty: '',
     prep_time_minutes: '',
     cook_time_minutes: '',
-    video_url: '', // video_urlはテキスト入力（URLを直接入力する想定か、動画ファイルをアップロードする想定か不明なため、今回はURLテキストとして扱います）
+    video_url: '',
   });
   // 画像ファイルと動画ファイルの状態をそれぞれ独立して管理
-  const [selectedImageFile, setSelectedImageFile] = useState(null); // 写真ファイルの状態
-  const [selectedVideoFile, setSelectedVideoFile] = useState(null); // 動画ファイルの状態
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null);
 
   const [message, setMessage] = useState(''); // 成功/エラーメッセージ
 
@@ -32,18 +32,18 @@ function RecipePostPage() {
 
   // 画像ファイル入力の変更をハンドル
   const handleImageFileChange = (e) => {
-    setSelectedImageFile(e.target.files[0]); // 選択された画像ファイルを設定
+    setSelectedImageFile(e.target.files[0]);
   };
 
   // 動画ファイル入力の変更をハンドル
   const handleVideoFileChange = (e) => {
-    setSelectedVideoFile(e.target.files[0]); // 選択された動画ファイルを設定
+    setSelectedVideoFile(e.target.files[0]);
   };
 
   // フォーム送信ハンドラ
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ページの再読み込みを防ぐ
-    setMessage(''); // メッセージをクリア
+    e.preventDefault();
+    setMessage('');
 
     // 必須フィールドのバリデーション
     if (!recipeData.title || !recipeData.ingredients || !recipeData.instructions) {
@@ -59,54 +59,35 @@ function RecipePostPage() {
     apiFormData.append('difficulty', recipeData.difficulty);
     apiFormData.append('prep_time_minutes', recipeData.prep_time_minutes);
     apiFormData.append('cook_time_minutes', recipeData.cook_time_minutes);
-    apiFormData.append('video_url', recipeData.video_url); // video_url も FormData に追加
+    apiFormData.append('video_url', recipeData.video_url);
 
-    // 画像ファイルがある場合のみ追加。バックエンドが 'image' を期待するため、キー名を 'image' に変更
+    // 画像ファイルがある場合のみ追加
     if (selectedImageFile) {
       apiFormData.append('image', selectedImageFile);
     }
-    // TODO: もし動画もS3にアップロードするなら、バックエンドにも動画アップロードロジックが必要
-    // if (selectedVideoFile) {
-    //   apiFormData.append('video', selectedVideoFile); // 現状バックエンドは動画ファイルアップロードに対応していないため、コメントアウト
-    // }
-
-    console.log('API呼び出し実行予定:', recipeData);
-    // FormDataの内容を直接コンソール表示するのは難しいので、確認のためにコメントアウトを推奨
-    // console.log('送信データ (FormData):', apiFormData);
-
+    
     try {
-      const token = localStorage.getItem('access_token'); // JWTトークンをlocalStorageから取得
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setMessage('ログインが必要です。');
-        navigate('/login'); // ログインページへリダイレクト
+        navigate('/login');
         return;
       }
 
-      const response = await fetch('http://localhost:5001/api/recipes/', { // ★APIエンドポイントを修正
+      const response = await fetch('http://localhost:5001/api/recipes/', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`, // JWTトークンをヘッダーに追加
-          // FormDataを使用する場合、'Content-Type': 'multipart/form-data' はブラウザが自動的に設定するため、不要です。
+          'Authorization': `Bearer ${token}`,
         },
-        body: apiFormData, // FormData を直接 body に指定
+        body: apiFormData,
       });
 
-      const result = await response.json(); // レスポンスをJSONとしてパース
+      const result = await response.json();
 
-      if (response.ok) { // HTTPステータスコードが2xxの場合
-        setMessage(result.message || 'レシピが正常に投稿されました！');
-        // フォームをリセット
-        setRecipeData({
-          title: '', ingredients: '', instructions: '', difficulty: '',
-          prep_time_minutes: '', cook_time_minutes: '', video_url: ''
-        });
-        setSelectedImageFile(null); // 選択された画像ファイルをリセット
-        setSelectedVideoFile(null); // 選択された動画ファイルをリセット
-        
-        // 投稿後、レシピ一覧画面へ遷移したい場合はコメントを外す
-        // navigate('/recipes'); 
+      if (response.ok) {
+        // ★修正点: 投稿成功後、/recipesへリダイレクトし、メッセージをstateとして渡す
+        navigate('/recipes', { state: { message: 'レシピを投稿しました！' } });
       } else {
-        // HTTPステータスコードがエラーの場合
         setMessage(result.message || `レシピ投稿に失敗しました: ${response.status}`);
         console.error('APIエラー:', result);
       }
@@ -119,7 +100,7 @@ function RecipePostPage() {
   return (
     <div className={styles['recipe-post-page-container']}>
       <h1 className={styles['page-title']}>Myオリジナル粉もんレシピ投稿</h1>
-      {message && <p className={styles['message']}>{message}</p>} {/* メッセージ表示 */}
+      {message && <p className={styles['message']}>{message}</p>}
       
       <form onSubmit={handleSubmit} className={styles['recipe-form']}>
         {/* タイトル */}
@@ -170,16 +151,15 @@ function RecipePostPage() {
           <input
             type="file"
             id="photo"
-            name="image" // ★重要: バックエンドが 'image' を期待するため、name属性を 'image' に変更
-            accept="image/*" // 画像ファイルのみ
-            onChange={handleImageFileChange} // 画像ファイル専用のハンドラ
+            name="image"
+            accept="image/*"
+            onChange={handleImageFileChange}
             className={styles['form-file-input']}
           />
           {selectedImageFile && <p className={styles['file-name']}>選択中: {selectedImageFile.name}</p>}
         </div>
 
-        {/* 動画URL入力（ファイルアップロードからテキスト入力に変更） */}
-        {/* バックエンドが現時点で動画ファイルのアップロードを直接S3にする処理がないため */}
+        {/* 動画URL入力 */}
         <div className={styles['form-group']}>
           <label htmlFor="video_url" className={styles['form-label']}>動画URL</label>
           <input
@@ -204,9 +184,9 @@ function RecipePostPage() {
             className={styles['form-select']}
           >
             <option value="">選択してや</option>
-            <option value="easy">初心者向け</option>
-            <option value="medium">普通</option>
-            <option value="hard">達人向け</option>
+            <option value="初心者向け">初心者向け</option>
+            <option value="普通">普通</option>
+            <option value="達人向け">達人向け</option>
           </select>
         </div>
 
