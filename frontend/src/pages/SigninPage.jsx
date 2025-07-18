@@ -75,6 +75,7 @@ function SigninPage() {
         </form>
         <p className={styles['auth-link-text']}>
           すでにアカウントをお持ちですか？{' '}
+          <br />
           <Link to="/login" className={styles['auth-link']}>ログイン</Link>
         </p>
       </div>

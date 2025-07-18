@@ -33,7 +33,6 @@ function LoginPage() {
         localStorage.setItem('user_id', data.user.id);
         localStorage.setItem('username', data.user.username);
 
-        alert('ログイン成功！');
         navigate('/recipes'); // トップページなどへリダイレクト
       } else {
         // ログイン失敗
@@ -71,6 +70,7 @@ function LoginPage() {
         </form>
         <p className={styles['auth-link-text']}>
           アカウントをお持ちでないですか？{' '}
+          <br />
           <Link to="/signin" className={styles['auth-link']}>新規登録</Link>
         </p>
       </div>
