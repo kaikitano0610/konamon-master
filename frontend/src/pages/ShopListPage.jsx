@@ -50,9 +50,16 @@ function ShopListPage() {
             key={index} 
             className={styles['shop-card']}
             onClick={() => handleCardClick(shop.place_id)} 
-            >
+          >
             <h2 className={styles['shop-name']}>{shop.name}</h2>
-            <p className={styles['shop-address']}>住所: {shop.address}</p>
+            <p className={styles['shop-address']}>
+              {shop.rating && (
+              <div className={styles['shop-rating']}>
+                ⭐️ {shop.rating.toFixed(1)} 
+                {shop.user_ratings_total && ` (${shop.user_ratings_total})`}
+              </div>
+              )}
+              住所: {shop.address}</p>
             {shop.phone && <p className={styles['shop-phone']}>電話: {shop.phone}</p>}
             <div className={styles['shop-hours']}>
               <h3>営業時間:</h3>
