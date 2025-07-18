@@ -39,6 +39,7 @@ function App() {
       )}
       <div>
         <Navbar />
+        <div className='contentWrapper'>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -55,6 +56,7 @@ function App() {
           {/* どのルートにもマッチしない場合（404ページ） */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </div>
       </div>
     </Router>
   );

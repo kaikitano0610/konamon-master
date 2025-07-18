@@ -56,7 +56,7 @@
 
 .shop-name {
   color: #1565c0; /* Even darker blue for shop name */
-  margin-top: 0;
+  margin-top: 10px;
   margin-bottom: 12px; /* Reduced margin */
   font-size: 1.6em; /* Slightly smaller font */
   border-bottom: 1px solid #bbdefb; /* Lighter blue border */
@@ -69,6 +69,8 @@
   margin-bottom: 6px;
   color: #555;
   line-height: 1.4;
+  position: relative;
+  margin-top: 20px;
 }
 
 .shop-hours h3 {
@@ -113,52 +115,27 @@
   transform: translateY(-2px);
 }
 
-/* Tablet and larger screens */
-@media (min-width: 600px) {
-  .shop-list-title {
-    font-size: 2.5em;
-  }
-
-  .shop-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two columns on larger mobile/tablet */
-    max-width: 900px; /* Increased max width */
-  }
-
-  .shop-card {
-    padding: 25px;
-  }
-
-  .shop-name {
-    font-size: 1.8em;
-  }
-
-  .shop-address,
-  .shop-phone {
-    font-size: 1em;
-  }
-
-  .shop-hours h3 {
-    font-size: 1.1em;
-  }
-
-  .shop-hours p {
-    font-size: 0.95em;
-  }
-
-  .shop-photo {
-    height: 200px;
-  }
-
-  .back-button {
-    padding: 12px 25px;
-    font-size: 1.1em;
-  }
+.shop-rating {
+  position: absolute;  
+  top: -25px;
+  right: -7px;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: #333; 
+  z-index: 5; 
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-/* Desktop screens */
-@media (min-width: 1024px) {
-  .shop-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Three columns on desktop */
-    max-width: 1200px;
+/* ★メディアクエリ内で必要に応じて調整★ */
+@media (min-width: 600px) {
+  .shop-rating {
+    top: 20px;
+    right: 20px;
+    font-size: 1em;
+    padding: 7px 12px;
   }
 }

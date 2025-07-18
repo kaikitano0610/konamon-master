@@ -42,6 +42,7 @@ def text_search(query: str, food_type: str = "", limit=5):
     params = {
         "query": search_query,
         "key": GOOGLE_API_KEY,
+        "language": "ja",
     }
     
     resp = requests.get(TEXT_SEARCH_API, params=params, timeout=10)

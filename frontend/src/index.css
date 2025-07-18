@@ -11,3 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.contentWrapper {
+  padding-top: 40px; /* 例: Navbarの高さが60pxの場合 */
+}
