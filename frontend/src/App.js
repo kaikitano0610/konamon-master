@@ -45,6 +45,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/nearby" element={<NearbyPage />} />
+          <Route path="/nearby/list" element={<ShopListPage />} /> 
           <Route path="/recommend" element={<RecommendPage />} />
           <Route path="/recommend/list" element={<ShopListPage />} />
           <Route path="/shops/:placeId" element={<ShopDetailPage />} />
