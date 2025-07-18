@@ -6,6 +6,7 @@ import SplashScreen from './components/SplashScreen/SplashScreen';
 import Navbar from './components/Navbar/Navbar';
 
 import HomePage from './pages/HomePage';
+import HomePageEnglish from './pages/HomePageEnglish'
 import LoginPage from './pages/LoginPage';
 import SigninPage from './pages/SigninPage';
 import NearbyPage from './pages/NearbyPage';
@@ -42,6 +43,7 @@ function App() {
         <div className='contentWrapper'>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/home-english" element={<HomePageEnglish/>} /> 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/nearby" element={<NearbyPage />} />

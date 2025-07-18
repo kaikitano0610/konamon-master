@@ -13,7 +13,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/">粉もんベストマッチ</Link>
+        <Link to="/"><span>粉</span>もんベストマッチ</Link>
       </div> 
       <button className="navbar-toggler" onClick={toggleMenu}>
         <div className="bar"></div>

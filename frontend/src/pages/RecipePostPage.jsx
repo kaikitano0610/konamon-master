@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // useEffect をインポート
 import { useNavigate } from 'react-router-dom';
-import styles from './RecipePostPage.module.css'; // CSS Modules をインポート
+import styles from './RecipePostPage.module.css';
 
 function RecipePostPage() {
   const navigate = useNavigate();
@@ -20,6 +20,16 @@ function RecipePostPage() {
   const [selectedVideoFile, setSelectedVideoFile] = useState(null);
 
   const [message, setMessage] = useState(''); // 成功/エラーメッセージ
+
+  // ★追加: コンポーネントがマウントされた時にログイン状態をチェック
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // メッセージを設定してからリダイレクト
+      setMessage('レシピ投稿にはログインが必要です。');
+      navigate('/login');
+    }
+  }, [navigate]); // navigate は依存配列に含める
 
   // 入力フィールドの変更をハンドル (テキスト入力用)
   const handleChange = (e) => {
@@ -68,8 +78,11 @@ function RecipePostPage() {
     
     try {
       const token = localStorage.getItem('access_token');
-      if (!token) {
-        setMessage('ログインが必要です。');
+      // ここでの !token チェックは、useEffect との二重チェックになりますが、
+      // ユーザーが非常に素早く操作した場合などに備えて残しておいても問題ありません。
+      // ただし、基本的には useEffect でリダイレクトされるため、この行に到達することは稀です。
+      if (!token) { 
+        setMessage('投稿にはログインが必要です。');
         navigate('/login');
         return;
       }
@@ -82,10 +95,16 @@ function RecipePostPage() {
         body: apiFormData,
       });
 
+      // レスポンスステータスが401の場合にログインページへリダイレクト
+      if (response.status === 401) {
+        setMessage('セッションの有効期限が切れました。再度ログインしてください。');
+        navigate('/login');
+        return;
+      }
+
       const result = await response.json();
 
       if (response.ok) {
-        // ★修正点: 投稿成功後、/recipesへリダイレクトし、メッセージをstateとして渡す
         navigate('/recipes', { state: { message: 'レシピを投稿しました！' } });
       } else {
         setMessage(result.message || `レシピ投稿に失敗しました: ${response.status}`);
