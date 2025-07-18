@@ -15,7 +15,7 @@ if not GOOGLE_API_KEY:
     raise RuntimeError("環境変数 GOOGLE_API_KEY を設定してください")
 
 NEARBY_SEARCH_API = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-PHOTO_API = "https://maps.googleapis.com/maps/api/place/photo" # get_place_detail2で生成されるので、ここでは不要だが残しておく
+PHOTO_API = "https://maps.googleapis.com/maps/api/place/photo" 
 
 def is_currently_open(opening_hours_periods):
     """
@@ -111,7 +111,15 @@ def get_nearby_open_shops():
             place_id = place.get("place_id")
             if not place_id:
                 continue
-                
+
+            # Nearby Searchの'place'オブジェクトから直接photo_referenceを抽出
+            photo_ref = (place.get("photos", [{}])[0].get("photo_reference")
+                         if place.get("photos") else None)
+            
+            # main_photo_urlをここで構築
+            main_photo_url = (f"{PHOTO_API}?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
+                              if photo_ref and GOOGLE_API_KEY else None)
+            
             # Place Details APIで詳細情報を取得（get_place_detail2関数を使用）
             shop_detail = get_place_detail2(place_id, lang="ja")
 
@@ -126,17 +134,17 @@ def get_nearby_open_shops():
             
             # 営業中の店舗のみを結果に含める
             if is_open:
-                # get_place_detail2の戻り値の形式に合わせてデータを調整
+                # get_place_detail2の戻り値の形式と、Nearby Searchで取得した情報をマージ
                 shop_data = {
                     "place_id": shop_detail.get("place_id"),
                     "name": shop_detail.get("name"),
                     "address": shop_detail.get("address"),
                     "latitude": shop_detail.get("latitude"),
                     "longitude": shop_detail.get("longitude"),
-                    "Maps_url": shop_detail.get("url"), # get_place_detail2にはurlフィールドがないので注意
+                    "Maps_url": shop_detail.get("url"), # get_place_detail2にはurlフィールドがあるか確認
                     "user_ratings_total": shop_detail.get("user_ratings_total"),
                     "rating": shop_detail.get("rating"),
-                    "main_photo_url": shop_detail.get("main_photo_url"),
+                    "main_photo_url": main_photo_url, 
                     "opening_hours_periods": periods
                 }
                 

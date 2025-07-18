@@ -1,16 +1,15 @@
-// frontend/src/pages/ShopDetailPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import styles from './ShopDetailPage.module.css'; // 新しいCSSモジュールを使用
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import styles from './ShopDetailPage.module.css';
 
 function ShopDetailPage() {
-  const { placeId } = useParams(); // URLからplace_idを取得
+  const { placeId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [shopDetail, setShopDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 現在の日付を取得 (ShopListPageと共通化すると良い)
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentDay = currentDate.getDate();
@@ -18,13 +17,38 @@ function ShopDetailPage() {
   const daysOfWeekFull = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
   const daysOfWeekShort = ['日', '月', '火', '水', '木', '金', '土'];
 
-  const getDayOpeningHours = (openingHours, dayIndex) => {
-    if (!openingHours || openingHours.length === 0) {
+  const getDayOpeningHours = (openingHoursData, dayIndex) => {
+    // ★修正箇所: openingHoursDataがnullまたはundefinedの場合のチェックを最初に追加★
+    if (!openingHoursData || !Array.isArray(openingHoursData) || openingHoursData.length === 0) {
       return '営業時間不明';
     }
-    const targetDayFull = daysOfWeekFull[dayIndex];
-    const hours = openingHours.find(hour => hour.startsWith(targetDayFull));
-    return hours ? hours.split(': ')[1] : '定休日、または営業時間不明';
+
+    // opening_hoursDataが配列（periods形式）の場合の処理
+    // APIの応答形式に応じて、ここに `openingHoursData[0].open` が存在するかどうかのチェックも追加するとより堅牢になります。
+    if (openingHoursData[0] && openingHoursData[0].open && typeof openingHoursData[0].open.day === 'number') {
+      const targetDayPeriods = openingHoursData.filter(p => p.open && p.open.day === dayIndex); // p.open の存在もチェック
+      if (targetDayPeriods.length === 0) {
+        return "定休日、または営業時間不明";
+      }
+      const displayStrings = [];
+      targetDayPeriods.forEach(p => {
+        const openTime = `${p.open.time.substring(0, 2)}:${p.open.time.substring(2, 4)}`;
+        const closeTime = `${p.close.time.substring(0, 2)}:${p.close.time.substring(2, 4)}`;
+        if (p.open.day !== p.close.day) {
+           displayStrings.push(`${openTime}〜翌${daysOfWeekShort[p.close.day]}${closeTime}`);
+        } else {
+           displayStrings.push(`${openTime}〜${closeTime}`);
+        }
+      });
+      return displayStrings.join(' / ');
+    }
+    // opening_hoursDataが文字列配列（ShopListPageが元々使っていた形式）の場合の処理
+    else if (typeof openingHoursData[0] === 'string') {
+        const targetDayFull = daysOfWeekFull[dayIndex];
+        const hours = openingHoursData.find(hour => hour.startsWith(targetDayFull));
+        return hours ? hours.split(': ')[1] : '定休日、または営業時間不明';
+    }
+    return '営業時間不明';
   };
 
   useEffect(() => {
@@ -92,6 +116,16 @@ function ShopDetailPage() {
           />
         )}
         {!shopDetail.photo_url && <p className={styles['no-photo-message']}>写真はありません</p>}
+
+        {shopDetail.rating && (
+          <div className={styles['shop-rating']}>
+            ⭐️ {shopDetail.rating.toFixed(1)}
+            {shopDetail.user_ratings_total && ` (${shopDetail.user_ratings_total})`}
+          </div>
+        )}
+        {shopDetail.price_level_text && (
+          <p className={styles['price-level']}>価格帯: {shopDetail.price_level_text}</p>
+        )}
 
         <p className={styles['detail-item']}><strong>住所:</strong> {shopDetail.address}</p>
         {shopDetail.phone && <p className={styles['detail-item']}><strong>電話:</strong> {shopDetail.phone}</p>}

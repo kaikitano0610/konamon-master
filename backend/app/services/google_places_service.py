@@ -37,7 +37,7 @@ def text_search(query: str, food_type: str = "", limit=5):
     food_type: 食べ物の種類
     戻り値: [{'place_id': ..., 'name': ..., 'address': ..., 'rating': ..., 'user_ratings_total': ..., 'photo_url': ...}, ...]
     """
-    search_query = f"{food_type} {query}".strip()
+    search_query = f"大阪の{food_type}屋 {query}".strip()
 
     params = {
         "query": search_query,
@@ -65,20 +65,25 @@ def text_search(query: str, food_type: str = "", limit=5):
                           if photo_ref and GOOGLE_API_KEY else None),
         }
         
-        # 詳細情報を取得（営業時間のみ）
+        # 詳細情報を取得（営業時間とGoogleマップURLも取得）
         place_id = r.get("place_id")
         if place_id:
             try:
+                # get_place_detailを呼び出す際に、必要なフィールド 'url' も取得する
                 detail = get_place_detail(place_id, lang="ja", photo_ref=photo_ref)
                 if detail:
                     shop_data["opening_hours"] = detail.get("opening_hours")
+                    shop_data["Maps_url"] = detail.get("url") # GoogleマップURLを追加
                 else:
                     shop_data["opening_hours"] = None
+                    shop_data["Maps_url"] = None
             except Exception as e:
                 # 詳細情報の取得に失敗しても基本情報は返す
                 shop_data["opening_hours"] = None
+                shop_data["Maps_url"] = None
         else:
             shop_data["opening_hours"] = None
+            shop_data["Maps_url"] = None
             
         shops.append(shop_data)
     return shops
@@ -93,7 +98,8 @@ def get_place_detail(place_id: str, lang="ja", photo_ref=None):
     resp = requests.get(DETAILS_API, params={
         "place_id": place_id,
         "language": lang,
-        "fields": "name,formatted_address,formatted_phone_number,international_phone_number,opening_hours,photos,rating,user_ratings_total,price_level",
+        # fieldsに'url'を追加してGoogleマップのURLを取得
+        "fields": "name,formatted_address,formatted_phone_number,international_phone_number,opening_hours,photos,rating,user_ratings_total,price_level,url", 
         "key": GOOGLE_API_KEY,
     }, timeout=10)
     resp.raise_for_status()
@@ -135,14 +141,20 @@ def get_place_detail(place_id: str, lang="ja", photo_ref=None):
         "user_ratings_total": user_ratings_total,
         "price_level_text": price_level_text,
         "photo_url": (f"{PHOTO_API}?maxwidth=400&photoreference={photo_ref}&key={GOOGLE_API_KEY}"
-                      if photo_ref and GOOGLE_API_KEY else None)
+                      if photo_ref and GOOGLE_API_KEY else None),
+        "url": result.get("url") # GoogleマップのURLを追加
     }
 
 def get_place_detail2(place_id: str, lang="ja"):
+    """
+    Place Details API で詳細取得（Nearbyで主に使用）
+    `fields` をNearbyに必要な情報に絞っている
+    """
     resp = requests.get(DETAILS_API, params={
         "place_id": place_id,
         "language": lang,
-        "fields": "name,formatted_address,geometry,photos,opening_hours,rating,user_ratings_total,url",
+        # fieldsに'url'を追加
+        "fields": "name,formatted_address,geometry,photos,opening_hours,rating,user_ratings_total,url", 
         "key": GOOGLE_API_KEY,
     }, timeout=10)
     resp.raise_for_status()
@@ -166,6 +178,8 @@ def get_place_detail2(place_id: str, lang="ja"):
             f"{PHOTO_API}?maxwidth=400&photo_reference={photo_ref}&key={GOOGLE_API_KEY}"
             if photo_ref else None
         ),
-        "opening_hours_periods": result.get("opening_hours", {}).get("periods", [])
+        "opening_hours_periods": result.get("opening_hours", {}).get("periods", []),
+        "rating": result.get("rating"),  # ratingを追加
+        "user_ratings_total": result.get("user_ratings_total"),  # user_ratings_totalを追加
+        "url": result.get("url") # GoogleマップのURLを追加
     }
-
