@@ -1,0 +1,52 @@
+.config-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* vertically center content */
+  min-height: 100vh;
+  background-color: #2196f3; /* Blue background */
+  font-family: 'Arial', sans-serif;
+  color: #fff; /* White text for contrast */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-size: 1.8em;
+  margin-bottom: 30px;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.language-buttons-container {
+  display: flex;
+  flex-direction: column; /* Buttons stacked vertically */
+  gap: 15px; /* Space between buttons */
+  width: 100%;
+  max-width: 300px; /* Max width for buttons on mobile */
+}
+
+.language-button {
+  background-color: #fff; /* White button background */
+  color: #2196f3; /* Blue text */
+  border: none;
+  border-radius: 10px; /* Slightly rounded corners */
+  padding: 15px 20px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  text-align: center;
+}
+
+.language-button:hover {
+  background-color: #e0e0e0; /* Lighter white on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.language-button:active {
+  transform: translateY(0); /* Press down effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

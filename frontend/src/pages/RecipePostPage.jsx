@@ -1,95 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // useEffect をインポート
 import { useNavigate } from 'react-router-dom';
-import styles from './RecipePostPage.module.css'; // CSS Modules をインポート
+import styles from './RecipePostPage.module.css';
 
 function RecipePostPage() {
   const navigate = useNavigate();
 
   // フォームの入力状態を管理
-  const [formData, setFormData] = useState({
+  const [recipeData, setRecipeData] = useState({
     title: '',
     ingredients: '',
     instructions: '',
-    photo: null, // Fileオブジェクトを保存
-    video: null, // Fileオブジェクトを保存
     difficulty: '',
     prep_time_minutes: '',
     cook_time_minutes: '',
+    video_url: '',
   });
+  // 画像ファイルと動画ファイルの状態をそれぞれ独立して管理
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null);
 
-  // 入力フィールドの変更をハンドル
+  const [message, setMessage] = useState(''); // 成功/エラーメッセージ
+
+  // ★追加: コンポーネントがマウントされた時にログイン状態をチェック
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // メッセージを設定してからリダイレクト
+      setMessage('レシピ投稿にはログインが必要です。');
+      navigate('/login');
+    }
+  }, [navigate]); // navigate は依存配列に含める
+
+  // 入力フィールドの変更をハンドル (テキスト入力用)
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
+    setRecipeData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  // ファイル入力の変更をハンドル
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: files[0], // 最初のファイルのみを取得
-    }));
+  // 画像ファイル入力の変更をハンドル
+  const handleImageFileChange = (e) => {
+    setSelectedImageFile(e.target.files[0]);
+  };
+
+  // 動画ファイル入力の変更をハンドル
+  const handleVideoFileChange = (e) => {
+    setSelectedVideoFile(e.target.files[0]);
   };
 
   // フォーム送信ハンドラ
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ページの再読み込みを防ぐ
+    e.preventDefault();
+    setMessage('');
 
-    // 必須フィールドのバリデーション (例)
-    if (!formData.title || !formData.ingredients || !formData.instructions) {
-      alert('タイトル、材料、作り方は必須やで！');
+    // 必須フィールドのバリデーション
+    if (!recipeData.title || !recipeData.ingredients || !recipeData.instructions) {
+      setMessage('タイトル、材料、作り方は必須です');
       return;
     }
 
-    // ここでバックエンドAPI（/api/recipes/post）を呼び出すロジックを実装
-    // 画像/動画アップロードを含むため、FormData API を使用
+    // FormDataを作成
     const apiFormData = new FormData();
-    apiFormData.append('title', formData.title);
-    apiFormData.append('ingredients', formData.ingredients);
-    apiFormData.append('instructions', formData.instructions);
-    apiFormData.append('difficulty', formData.difficulty);
-    apiFormData.append('prep_time_minutes', formData.prep_time_minutes);
-    apiFormData.append('cook_time_minutes', formData.cook_time_minutes);
+    apiFormData.append('title', recipeData.title);
+    apiFormData.append('ingredients', recipeData.ingredients);
+    apiFormData.append('instructions', recipeData.instructions);
+    apiFormData.append('difficulty', recipeData.difficulty);
+    apiFormData.append('prep_time_minutes', recipeData.prep_time_minutes);
+    apiFormData.append('cook_time_minutes', recipeData.cook_time_minutes);
+    apiFormData.append('video_url', recipeData.video_url);
 
-    // ファイルがある場合のみ追加
-    if (formData.photo) {
-      apiFormData.append('photo', formData.photo);
+    // 画像ファイルがある場合のみ追加
+    if (selectedImageFile) {
+      apiFormData.append('image', selectedImageFile);
     }
-    if (formData.video) {
-      apiFormData.append('video', formData.video);
-    }
-
-    // API呼び出しのシミュレーション（実際はfetch APIなどを使う）
-    console.log('API呼び出し実行予定:', formData);
-    console.log('送信データ (FormData):', apiFormData);
-
+    
     try {
-      // 例: const response = await fetch('http://localhost:5001/api/recipes/post', {
-      //   method: 'POST',
-      //   body: apiFormData, // FormData を直接 body に指定すると Content-Type は自動で multipart/form-data になる
-      // });
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.error || `APIエラー: ${response.status}`);
-      // }
-      // const result = await response.json();
-      // console.log('レシピ投稿成功:', result);
+      const token = localStorage.getItem('access_token');
+      // ここでの !token チェックは、useEffect との二重チェックになりますが、
+      // ユーザーが非常に素早く操作した場合などに備えて残しておいても問題ありません。
+      // ただし、基本的には useEffect でリダイレクトされるため、この行に到達することは稀です。
+      if (!token) { 
+        setMessage('投稿にはログインが必要です。');
+        navigate('/login');
+        return;
+      }
 
-      alert('レシピを投稿したで！');
-      navigate('/recipes'); // 投稿後、レシピ一覧画面へ遷移
+      const response = await fetch('http://localhost:5001/api/recipes/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: apiFormData,
+      });
+
+      // レスポンスステータスが401の場合にログインページへリダイレクト
+      if (response.status === 401) {
+        setMessage('セッションの有効期限が切れました。再度ログインしてください。');
+        navigate('/login');
+        return;
+      }
+
+      const result = await response.json();
+
+      if (response.ok) {
+        navigate('/recipes', { state: { message: 'レシピを投稿しました！' } });
+      } else {
+        setMessage(result.message || `レシピ投稿に失敗しました: ${response.status}`);
+        console.error('APIエラー:', result);
+      }
     } catch (error) {
-      alert(`レシピ投稿に失敗しました: ${error.message}`);
-      console.error('レシピ投稿エラー:', error);
+      console.error('API呼び出し中にエラーが発生しました:', error);
+      setMessage(`ネットワークエラーが発生しました: ${error.message}`);
     }
   };
 
   return (
     <div className={styles['recipe-post-page-container']}>
       <h1 className={styles['page-title']}>Myオリジナル粉もんレシピ投稿</h1>
+      {message && <p className={styles['message']}>{message}</p>}
       
       <form onSubmit={handleSubmit} className={styles['recipe-form']}>
         {/* タイトル */}
@@ -99,7 +129,7 @@ function RecipePostPage() {
             type="text"
             id="title"
             name="title"
-            value={formData.title}
+            value={recipeData.title}
             onChange={handleChange}
             className={styles['form-input']}
             required
@@ -112,7 +142,7 @@ function RecipePostPage() {
           <textarea
             id="ingredients"
             name="ingredients"
-            value={formData.ingredients}
+            value={recipeData.ingredients}
             onChange={handleChange}
             className={styles['form-textarea']}
             rows="5"
@@ -126,7 +156,7 @@ function RecipePostPage() {
           <textarea
             id="instructions"
             name="instructions"
-            value={formData.instructions}
+            value={recipeData.instructions}
             onChange={handleChange}
             className={styles['form-textarea']}
             rows="8"
@@ -140,26 +170,26 @@ function RecipePostPage() {
           <input
             type="file"
             id="photo"
-            name="photo"
-            accept="image/*" // 画像ファイルのみ
-            onChange={handleFileChange}
+            name="image"
+            accept="image/*"
+            onChange={handleImageFileChange}
             className={styles['form-file-input']}
           />
-          {formData.photo && <p className={styles['file-name']}>選択中: {formData.photo.name}</p>}
+          {selectedImageFile && <p className={styles['file-name']}>選択中: {selectedImageFile.name}</p>}
         </div>
 
-        {/* 動画アップロード */}
+        {/* 動画URL入力 */}
         <div className={styles['form-group']}>
-          <label htmlFor="video" className={styles['form-label']}>動画</label>
+          <label htmlFor="video_url" className={styles['form-label']}>動画URL</label>
           <input
-            type="file"
-            id="video"
-            name="video"
-            accept="video/*" // 動画ファイルのみ
-            onChange={handleFileChange}
-            className={styles['form-file-input']}
+            type="text"
+            id="video_url"
+            name="video_url"
+            value={recipeData.video_url}
+            onChange={handleChange}
+            className={styles['form-input']}
+            placeholder="YouTubeなどの動画URLを入力"
           />
-          {formData.video && <p className={styles['file-name']}>選択中: {formData.video.name}</p>}
         </div>
 
         {/* 難易度 */}
@@ -168,14 +198,14 @@ function RecipePostPage() {
           <select
             id="difficulty"
             name="difficulty"
-            value={formData.difficulty}
+            value={recipeData.difficulty}
             onChange={handleChange}
             className={styles['form-select']}
           >
             <option value="">選択してや</option>
-            <option value="easy">初心者向け</option>
-            <option value="medium">普通</option>
-            <option value="hard">達人向け</option>
+            <option value="初心者向け">初心者向け</option>
+            <option value="普通">普通</option>
+            <option value="達人向け">達人向け</option>
           </select>
         </div>
 
@@ -186,7 +216,7 @@ function RecipePostPage() {
             type="number"
             id="prep_time_minutes"
             name="prep_time_minutes"
-            value={formData.prep_time_minutes}
+            value={recipeData.prep_time_minutes}
             onChange={handleChange}
             className={styles['form-input']}
             min="0"
@@ -200,7 +230,7 @@ function RecipePostPage() {
             type="number"
             id="cook_time_minutes"
             name="cook_time_minutes"
-            value={formData.cook_time_minutes}
+            value={recipeData.cook_time_minutes}
             onChange={handleChange}
             className={styles['form-input']}
             min="0"

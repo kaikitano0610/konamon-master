@@ -13,7 +13,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/">粉もんベストマッチ</Link>
+        <Link to="/"><span>粉</span>もんベストマッチ</Link>
       </div> 
       <button className="navbar-toggler" onClick={toggleMenu}>
         <div className="bar"></div>
@@ -36,9 +36,6 @@ function Navbar() {
           </li>
           <li>
             <Link to={"/login"} onClick={() => setIsOpen(false)}>ログイン</Link>
-          </li>
-          <li>
-            <Link to={"/signin"} onClick={() => setIsOpen(false)}>サインイン</Link>
           </li>
           <li>
             <Link to={"/config"} onClick={() => setIsOpen(false)}>設定</Link>

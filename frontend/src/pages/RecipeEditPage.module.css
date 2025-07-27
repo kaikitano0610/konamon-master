@@ -1,148 +1,224 @@
-/* frontend/src/js/pages/RecipeEditPage.module.css */
+/* frontend/src/pages/RecipePostPage.module.css */
 
-.edit-page-container { /* PostPage と同じくコンテナスタイル */
+.recipe-post-page-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 15px; /* モバイル向けにパディングを調整 */
   background-color: #add8e6; /* 水色系 */
   min-height: calc(100vh - var(--navbar-height, 0px));
   box-sizing: border-box;
-}
-
-.page-title { /* PostPage と同じくタイトルスタイル */
-  font-size: 1.8rem;
+  font-family: 'Arial', sans-serif; /* フォントを指定 */
   color: #333;
-  margin-bottom: 30px;
-  font-weight: bold;
 }
 
-.recipe-form { /* PostPage と同じくフォームスタイル */
+.page-title {
+  font-size: 1.6rem; /* モバイル向けに小さく */
+  color: #1565c0; /* 濃い青色 */
+  margin-bottom: 25px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+}
+
+.recipe-form {
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  padding: 25px;
+  padding: 20px; /* モバイル向けにパディングを調整 */
   width: 100%;
-  max-width: 600px;
+  max-width: 450px; /* モバイルでの最大幅 */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px; /* 各フォームグループ間の余白を調整 */
 }
 
-.form-group { /* PostPage と同じくフォームグループスタイル */
+.form-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* モバイルでは縦並びが基本 */
+  margin-bottom: 10px; /* グループ間の余白 */
 }
 
-.form-label { /* PostPage と同じくラベルスタイル */
-  font-size: 1rem;
+.form-label {
+  font-size: 0.95rem; /* モバイル向けに調整 */
   color: #555;
-  margin-bottom: 8px;
+  margin-bottom: 6px; /* ラベルと入力欄の間の余白 */
   font-weight: bold;
 }
 
-.required { /* PostPage と同じく必須マークスタイル */
+.required {
   color: red;
-  margin-left: 5px;
+  margin-left: 4px;
 }
 
 .form-input,
 .form-textarea,
-.form-select { /* PostPage と同じく入力フィールドスタイル */
+.form-select {
   width: 100%;
-  padding: 12px;
+  padding: 10px; /* モバイル向けにパディングを調整 */
   border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px; /* 角丸を調整 */
+  font-size: 0.95rem; /* モバイル向けに調整 */
   box-sizing: border-box;
 }
 
-.form-textarea { /* PostPage と同じくテキストエリアスタイル */
+.form-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px; /* 最小高さを確保 */
 }
 
-.form-select { /* PostPage と同じくセレクトボックススタイル */
+.form-select {
   appearance: none;
   background-color: white;
   cursor: pointer;
+  /* カスタム矢印を追加する場合の例（簡易版） */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px;
 }
 
-.form-file-input { /* PostPage と同じくファイル入力スタイル */
+.form-file-input {
   width: 100%;
-  padding: 10px 0;
+  padding: 8px 0;
   border: none;
   background-color: transparent;
+  font-size: 0.95rem; /* モバイル向けに調整 */
 }
 
-.file-name { /* PostPage と同じくファイル名表示スタイル */
-  font-size: 0.9rem;
-  color: #666;
+.file-name {
+  font-size: 0.8rem; /* モバイル向けに調整 */
+  color: #888;
   margin-top: 5px;
 }
 
-.submit-button { /* PostPage と同じく送信ボタンのスタイル */
+.submit-button {
   background-color: #ffeb3b;
   color: #333;
   border: none;
-  border-radius: 25px;
-  padding: 15px 25px;
-  font-size: 1.2rem;
+  border-radius: 20px; /* 角丸を調整 */
+  padding: 12px 20px; /* パディングを調整 */
+  font-size: 1rem; /* モバイル向けに調整 */
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* 影を調整 */
   transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-top: 15px;
+  margin-top: 20px;
+  width: 100%; /* モバイルでは幅いっぱい */
+  max-width: 250px; /* 中央寄せ用 */
+  align-self: center; /* 中央寄せ */
 }
 
-.submit-button:hover { /* PostPage と同じくホバースタイル */
+.submit-button:hover {
   background-color: #fdd835;
   transform: translateY(-2px);
 }
 
-.submit-button:active { /* PostPage と同じくアクティブスタイル */
+.submit-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* ★編集画面固有のスタイル (メディア表示部分) */
-.current-media-display {
-    margin-top: 10px;
-    margin-bottom: 15px;
-    text-align: center;
+/* 既存の画像のプレビュー用スタイル */
+.current-image-preview {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f9f9f9;
 }
 
-.current-photo,
-.current-video {
-    max-width: 100%;
-    height: auto;
-    max-height: 200px; /* プレビューの最大高さ */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.current-image-preview p {
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #666;
 }
 
-/* PostPage と同じくデスクトップ向け調整 */
-@media (min-width: 768px) {
+.preview-image {
+  width: 100%; /* モバイルでは幅いっぱい */
+  height: auto;
+  max-height: 150px; /* プレビュー画像の最大高さ */
+  border-radius: 5px;
+  border: 1px solid #eee;
+  object-fit: contain;
+}
+
+
+/* --- レスポンシブ対応 (Tablet以上) --- */
+@media (min-width: 600px) {
+  .recipe-post-page-container {
+    padding: 30px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 35px;
+  }
+
   .recipe-form {
-    padding: 35px 50px;
+    padding: 30px;
+    max-width: 600px; /* タブレット以上でフォームの幅を広げる */
+    gap: 20px;
   }
 
   .form-group {
-    flex-direction: row;
+    flex-direction: row; /* ラベルと入力を横並びに */
     align-items: center;
     gap: 20px;
   }
 
   .form-label {
-    flex-basis: 150px;
+    flex-basis: 150px; /* ラベルの幅を固定 */
     margin-bottom: 0;
     text-align: right;
+    font-size: 1rem;
   }
 
   .form-input,
   .form-textarea,
   .form-select,
   .form-file-input {
-    flex-grow: 1;
+    flex-grow: 1; /* 入力フィールドが残りのスペースを埋める */
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  .form-textarea {
+    min-height: 120px;
+  }
+
+  .submit-button {
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    max-width: 300px; /* デスクトップでのボタンの最大幅 */
+  }
+
+  .preview-image {
+    max-height: 200px; /* プレビュー画像の最大高さを調整 */
+  }
+
+  .file-name {
+    font-size: 0.9rem;
+  }
+}
+
+/* --- レスポンシブ対応 (Desktop以上) --- */
+@media (min-width: 1024px) {
+  .page-title {
+    font-size: 2.2rem;
+  }
+
+  .recipe-form {
+    padding: 40px;
+    max-width: 700px;
+  }
+
+  .form-label {
+    flex-basis: 180px; /* デスクトップでラベルの幅をさらに広げる */
+  }
+
+  .submit-button {
+    font-size: 1.2rem;
   }
 }
