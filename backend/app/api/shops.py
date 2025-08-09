@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from backend.app.models import Shop
 from backend.app.services.google_places_service import text_search, get_place_detail
+from backend.app.services.openai_service import generate_search_queries
 
 shops_bp = Blueprint('shops', __name__)
 
@@ -40,7 +41,18 @@ def recommend_shops_by_mood(): # 関数名は機能に合わせて変更
     if not mood_query:
         return jsonify({"error": ("Mood query is required.")}), 400
 
-    return jsonify(text_search(mood_query,food_type)), 200
+    generated_queries = generate_search_queries(mood_query, food_type)
+
+    all_shops = []
+    # 生成された各クエリでGoogle Placesを検索
+    for query in generated_queries:
+        # text_searchの第一引数をqueryに置き換え
+        shops_from_query = text_search(query, limit=5)
+        all_shops.extend(shops_from_query)
+
+    # 重複を排除して、結果を返す
+    unique_shops = {shop['place_id']: shop for shop in all_shops}.values()
+    return jsonify(list(unique_shops)), 200
 
 # ------------------------------------------------------------
 # Google Place の詳細を返す

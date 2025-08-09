@@ -9,3 +9,5 @@ pytz
 Flask-JWT-Extended==4.6.0
 boto3
 python-dotenv
+cryptography
+openai
