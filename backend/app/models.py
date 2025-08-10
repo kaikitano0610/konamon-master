@@ -2,6 +2,7 @@
 from backend.app.extensions import db  # db は app.py で作成されたものをインポート
 from datetime import datetime
 from enum import Enum
+
 # ---------- 共通 mixin ---------- #
 class TimestampMixin:
     created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
@@ -98,6 +99,12 @@ class Recipe(TimestampMixin, db.Model):
     difficulty = db.Column(db.String(50))
     prep_time_minutes = db.Column(db.Integer)
     cook_time_minutes = db.Column(db.Integer)
+    
+    # --- ここから追加 ---
+    title_en = db.Column(db.String(255))
+    ingredients_en = db.Column(db.Text)
+    instructions_en = db.Column(db.Text)
+    # --- ここまで追加 ---
 
     user = db.relationship("User", back_populates="recipes")
 

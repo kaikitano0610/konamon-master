@@ -1,10 +1,10 @@
 import os
 from google.cloud import translate_v2 as translate
-from google.oauth2 import service_account
 
-# 環境変数からGoogle APIキーを読み込む
-api_key = os.environ.get('GOOGLE_API_KEY')
-translate_client = translate.Client(api_key=api_key)
+credentials_path = "/code/google-credentials.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+
+translate_client = translate.Client()
 
 def translate_text(text, target_language):
     """
