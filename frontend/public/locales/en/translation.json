@@ -116,5 +116,8 @@
   "loading_images_message": "Loading shop images!",
   "no_shops_found_message": "No shops found...🐙",
   "from_here_label": "From here",
-  "view_on_Maps_link": "View on Google Maps"
+  "view_on_Maps_link": "View on Google Maps",
+  "recipe_title_label": "レシピタイトル",
+  "ingredients_label": "材料",
+  "instructions_label": "作り方"
 }

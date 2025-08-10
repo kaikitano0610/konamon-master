@@ -116,5 +116,8 @@
   "loading_images_message": "お店の画像を読み込み中やで！",
   "no_shops_found_message": "お店が見つかりませんでした…🐙",
   "from_here_label": "ここから",
-  "view_on_Maps_link": "Google マップで見る"
+  "view_on_Maps_link": "Google マップで見る",
+  "recipe_title_label": "レシピタイトル",
+  "ingredients_label": "材料",
+  "instructions_label": "作り方"
 }
