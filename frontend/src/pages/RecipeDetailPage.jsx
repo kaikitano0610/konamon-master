@@ -166,7 +166,7 @@ function RecipeDetailPage() {
         )}
 
         {recipe.photo_url && (
-          <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-image']} />
+          <img src={`http://localhost:5001${recipe.photo_url}`} alt={recipe.title} className={styles['recipe-image']} />
         )}
         {!recipe.photo_url && (
           <div className={styles['no-image-placeholder']}>画像なし</div>

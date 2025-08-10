@@ -1,48 +1,35 @@
 import os
 import uuid
-import boto3
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
+from werkzeug.utils import secure_filename
 from backend.app.models import Recipe, db, User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from backend.app.services.translation_service import translate_text
 
 recipes_bp = Blueprint('recipes', __name__, url_prefix='/api/recipes')
 
-# S3クライアントの初期化
-# 環境変数は.envから読み込まれます。
-s3 = boto3.client(
-    's3',
-    aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-    region_name=os.environ.get('S3_REGION')
-)
-S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
-    """
-    アップロードされたファイルの拡張子が許可されているかチェックするヘルパー関数
-    """
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def delete_s3_object(url):
-    """
-    S3から指定されたURLのオブジェクトを削除するヘルパー関数
-    """
-    if url and S3_BUCKET_NAME in url:
+def delete_local_image(filename):
+    file_path = os.path.join(current_app.root_path, '..', UPLOAD_FOLDER, filename)
+    if os.path.exists(file_path):
         try:
-            key_name = url.split('/')[-1]
-            s3.delete_object(Bucket=S3_BUCKET_NAME, Key=key_name)
-            print(f"DEBUG: S3 object '{key_name}' deleted successfully.")
+            os.remove(file_path)
+            print(f"DEBUG: Local file '{filename}' deleted successfully.")
         except Exception as e:
-            print(f"DEBUG: Failed to delete S3 object '{key_name}': {e}")
+            print(f"DEBUG: Failed to delete local file '{filename}': {e}")
+
+@recipes_bp.route('/uploads/<filename>')
+def serve_image(filename):
+    return send_from_directory(os.path.join(current_app.root_path, '..', UPLOAD_FOLDER), filename)
 
 @recipes_bp.route('/', methods=['GET'])
 def get_all_recipes():
-    """
-    全レシピの一覧取得API (ログイン不要)
-    """
     recipes = Recipe.query.all()
     output = []
     for recipe in recipes:
@@ -67,9 +54,6 @@ def get_all_recipes():
 
 @recipes_bp.route('/<int:recipe_id>', methods=['GET'])
 def get_recipe_detail(recipe_id):
-    """
-    特定のレシピの詳細取得API (ログイン不要)
-    """
     recipe = Recipe.query.get(recipe_id)
     if not recipe:
         return jsonify({"message": "レシピが見つかりませんでした"}), 404
@@ -95,10 +79,6 @@ def get_recipe_detail(recipe_id):
 @recipes_bp.route('/', methods=['POST'])
 @jwt_required()
 def add_recipe():
-    """
-    レシピ追加API (ログイン必須、画像アップロード対応)
-    リクエストボディ: FormData (JSONデータとファイル)
-    """
     current_user_identity = get_jwt_identity()
     try:
         current_user_id = int(current_user_identity)
@@ -106,26 +86,20 @@ def add_recipe():
         return jsonify({"message": "無効なユーザーID形式です"}), 400
 
     photo_url = None
-    unique_filename = None
-
+    
     if 'image' in request.files:
         image_file = request.files['image']
         
-        if image_file.filename == '':
-            return jsonify({"message": "ファイルが選択されていません"}), 400
-        
+        # ★ ファイル名が有効か、拡張子があるかを確認する
+        if not image_file.filename or not '.' in image_file.filename:
+             return jsonify({"message": "画像ファイルが無効です"}), 400
+
         if image_file and allowed_file(image_file.filename):
-            original_filename = image_file.filename
-            unique_filename = str(uuid.uuid4()) + '.' + original_filename.rsplit('.', 1)[1].lower()
-            
+            unique_filename = str(uuid.uuid4()) + '.' + secure_filename(image_file.filename).rsplit('.', 1)[1].lower()
+            file_path = os.path.join(current_app.root_path, '..', UPLOAD_FOLDER, unique_filename)
             try:
-                s3.upload_fileobj(
-                    image_file,
-                    S3_BUCKET_NAME,
-                    unique_filename,
-                    ExtraArgs={'ContentType': image_file.content_type, 'ACL': 'public-read'}
-                )
-                photo_url = f"https://{S3_BUCKET_NAME}.s3.{os.environ.get('S3_REGION')}.amazonaws.com/{unique_filename}"
+                image_file.save(file_path)
+                photo_url = f"/api/recipes/uploads/{unique_filename}"
             except Exception as e:
                 return jsonify({"message": f"画像のアップロードに失敗しました: {str(e)}"}), 500
         else:
@@ -135,7 +109,7 @@ def add_recipe():
 
     if not all(k in data for k in ["title", "ingredients", "instructions"]):
         if photo_url:
-            delete_s3_object(photo_url)
+            delete_local_image(os.path.basename(photo_url))
         return jsonify({"message": "タイトル、材料、作り方は必須です"}), 400
 
     title_ja = data['title']
@@ -167,16 +141,12 @@ def add_recipe():
     except Exception as e:
         db.session.rollback()
         if photo_url:
-            delete_s3_object(photo_url)
+            delete_local_image(os.path.basename(photo_url))
         return jsonify({"message": f"レシピの追加に失敗しました: {str(e)}"}), 500
 
 @recipes_bp.route('/<int:recipe_id>', methods=['PUT'])
 @jwt_required()
 def update_recipe(recipe_id):
-    """
-    レシピ編集API (ログイン必須、かつ所有者のみ、画像アップロード対応)
-    リクエストボディ: FormData (テキストデータとファイル)
-    """
     current_user_identity = get_jwt_identity()
     try:
         current_user_id = int(current_user_identity)
@@ -196,22 +166,20 @@ def update_recipe(recipe_id):
     old_photo_url = recipe.photo_url
 
     if 'image' in request.files and request.files['image'].filename != '':
-        # 新しい画像ファイルがアップロードされた場合
         image_file = request.files['image']
+        # ★ ファイル名が有効か、拡張子があるかを確認する
+        if not image_file.filename or not '.' in image_file.filename:
+             return jsonify({"message": "画像ファイルが無効です"}), 400
+
         if allowed_file(image_file.filename):
-            original_filename = image_file.filename
-            unique_filename = str(uuid.uuid4()) + '.' + original_filename.rsplit('.', 1)[1].lower()
+            unique_filename = str(uuid.uuid4()) + '.' + secure_filename(image_file.filename).rsplit('.', 1)[1].lower()
+            file_path = os.path.join(current_app.root_path, '..', UPLOAD_FOLDER, unique_filename)
             try:
-                s3.upload_fileobj(
-                    image_file,
-                    S3_BUCKET_NAME,
-                    unique_filename,
-                    ExtraArgs={'ContentType': image_file.content_type, 'ACL': 'public-read'}
-                )
-                new_photo_url = f"https://{S3_BUCKET_NAME}.s3.{os.environ.get('S3_REGION')}.amazonaws.com/{unique_filename}"
+                image_file.save(file_path)
+                new_photo_url = f"/api/recipes/uploads/{unique_filename}"
                 
                 if old_photo_url:
-                    delete_s3_object(old_photo_url)
+                    delete_local_image(os.path.basename(old_photo_url))
             except Exception as e:
                 return jsonify({"message": f"新しい画像のアップロードに失敗しました: {str(e)}"}), 500
         else:
@@ -221,13 +189,12 @@ def update_recipe(recipe_id):
         if explicit_photo_url_from_form == '':
             new_photo_url = None
             if old_photo_url:
-                delete_s3_object(old_photo_url)
+                delete_local_image(os.path.basename(old_photo_url))
         else:
             new_photo_url = explicit_photo_url_from_form
     else:
         new_photo_url = old_photo_url
 
-    # レシピデータを更新
     if 'title' in data and data['title'] != recipe.title:
         recipe.title = data['title']
         recipe.title_en = translate_text(recipe.title, 'en')
@@ -258,16 +225,12 @@ def update_recipe(recipe_id):
     except Exception as e:
         db.session.rollback()
         if new_photo_url and new_photo_url != old_photo_url and 'image' in request.files:
-            delete_s3_object(new_photo_url)
+            delete_local_image(os.path.basename(new_photo_url))
         return jsonify({"message": f"レシピの更新に失敗しました: {str(e)}"}), 500
 
 @recipes_bp.route('/<int:recipe_id>', methods=['DELETE'])
 @jwt_required()
 def delete_recipe(recipe_id):
-    """
-    レシピ削除API (ログイン必須、かつ所有者のみ)
-    レシピ削除時にS3の画像も削除するように拡張
-    """
     current_user_identity = get_jwt_identity()
     try:
         current_user_id = int(current_user_identity)
@@ -282,7 +245,7 @@ def delete_recipe(recipe_id):
         return jsonify({"message": "このレシピを削除する権限がありません"}), 403
 
     if recipe.photo_url:
-        delete_s3_object(recipe.photo_url)
+        delete_local_image(os.path.basename(recipe.photo_url))
 
     try:
         db.session.delete(recipe)
