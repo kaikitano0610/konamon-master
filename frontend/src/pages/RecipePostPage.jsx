@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react'; // useEffect をインポート
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
 import styles from './RecipePostPage.module.css';
 
 function RecipePostPage() {
+  const { t } = useTranslation(); // ★ t関数を取得
   const navigate = useNavigate();
 
-  // フォームの入力状態を管理
   const [recipeData, setRecipeData] = useState({
     title: '',
     ingredients: '',
@@ -15,23 +16,19 @@ function RecipePostPage() {
     cook_time_minutes: '',
     video_url: '',
   });
-  // 画像ファイルと動画ファイルの状態をそれぞれ独立して管理
+
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [selectedVideoFile, setSelectedVideoFile] = useState(null);
+  const [message, setMessage] = useState('');
 
-  const [message, setMessage] = useState(''); // 成功/エラーメッセージ
-
-  // ★追加: コンポーネントがマウントされた時にログイン状態をチェック
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      // メッセージを設定してからリダイレクト
-      setMessage('レシピ投稿にはログインが必要です。');
+      setMessage(t('login_required_post_message')); // ★ 翻訳キーを使用
       navigate('/login');
     }
-  }, [navigate]); // navigate は依存配列に含める
+  }, [navigate, t]); // tも依存配列に追加
 
-  // 入力フィールドの変更をハンドル (テキスト入力用)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRecipeData((prevData) => ({
@@ -40,28 +37,23 @@ function RecipePostPage() {
     }));
   };
 
-  // 画像ファイル入力の変更をハンドル
   const handleImageFileChange = (e) => {
     setSelectedImageFile(e.target.files[0]);
   };
 
-  // 動画ファイル入力の変更をハンドル
   const handleVideoFileChange = (e) => {
     setSelectedVideoFile(e.target.files[0]);
   };
 
-  // フォーム送信ハンドラ
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
 
-    // 必須フィールドのバリデーション
     if (!recipeData.title || !recipeData.ingredients || !recipeData.instructions) {
-      setMessage('タイトル、材料、作り方は必須です');
+      setMessage(t('required_fields_message')); // ★ 翻訳キーを使用
       return;
     }
 
-    // FormDataを作成
     const apiFormData = new FormData();
     apiFormData.append('title', recipeData.title);
     apiFormData.append('ingredients', recipeData.ingredients);
@@ -71,18 +63,14 @@ function RecipePostPage() {
     apiFormData.append('cook_time_minutes', recipeData.cook_time_minutes);
     apiFormData.append('video_url', recipeData.video_url);
 
-    // 画像ファイルがある場合のみ追加
     if (selectedImageFile) {
       apiFormData.append('image', selectedImageFile);
     }
     
     try {
       const token = localStorage.getItem('access_token');
-      // ここでの !token チェックは、useEffect との二重チェックになりますが、
-      // ユーザーが非常に素早く操作した場合などに備えて残しておいても問題ありません。
-      // ただし、基本的には useEffect でリダイレクトされるため、この行に到達することは稀です。
-      if (!token) { 
-        setMessage('投稿にはログインが必要です。');
+      if (!token) {
+        setMessage(t('login_required_post_message')); // ★ 翻訳キーを使用
         navigate('/login');
         return;
       }
@@ -95,9 +83,8 @@ function RecipePostPage() {
         body: apiFormData,
       });
 
-      // レスポンスステータスが401の場合にログインページへリダイレクト
       if (response.status === 401) {
-        setMessage('セッションの有効期限が切れました。再度ログインしてください。');
+        setMessage(t('session_expired_message')); // ★ 翻訳キーを使用
         navigate('/login');
         return;
       }
@@ -105,26 +92,25 @@ function RecipePostPage() {
       const result = await response.json();
 
       if (response.ok) {
-        navigate('/recipes', { state: { message: 'レシピを投稿しました！' } });
+        navigate('/recipes', { state: { message: t('recipe_posted_message') } }); // ★ 翻訳キーを使用
       } else {
-        setMessage(result.message || `レシピ投稿に失敗しました: ${response.status}`);
+        setMessage(result.message || t('post_recipe_failed_message', { status: response.status })); // ★ 翻訳キーを使用
         console.error('APIエラー:', result);
       }
     } catch (error) {
       console.error('API呼び出し中にエラーが発生しました:', error);
-      setMessage(`ネットワークエラーが発生しました: ${error.message}`);
+      setMessage(t('network_error_message', { error: error.message })); // ★ 翻訳キーを使用
     }
   };
 
   return (
     <div className={styles['recipe-post-page-container']}>
-      <h1 className={styles['page-title']}>Myオリジナル粉もんレシピ投稿</h1>
+      <h1 className={styles['page-title']}>{t('post_recipe_title')}</h1> {/* ★ 翻訳キーを使用 */}
       {message && <p className={styles['message']}>{message}</p>}
       
       <form onSubmit={handleSubmit} className={styles['recipe-form']}>
-        {/* タイトル */}
         <div className={styles['form-group']}>
-          <label htmlFor="title" className={styles['form-label']}>タイトル <span className={styles['required']}>*</span></label>
+          <label htmlFor="title" className={styles['form-label']}>{t('recipe_title_label')} <span className={styles['required']}>*</span></label>
           <input
             type="text"
             id="title"
@@ -136,9 +122,8 @@ function RecipePostPage() {
           />
         </div>
 
-        {/* 材料 */}
         <div className={styles['form-group']}>
-          <label htmlFor="ingredients" className={styles['form-label']}>材料 <span className={styles['required']}>*</span></label>
+          <label htmlFor="ingredients" className={styles['form-label']}>{t('ingredients_label')} <span className={styles['required']}>*</span></label>
           <textarea
             id="ingredients"
             name="ingredients"
@@ -150,9 +135,8 @@ function RecipePostPage() {
           ></textarea>
         </div>
 
-        {/* 作り方 */}
         <div className={styles['form-group']}>
-          <label htmlFor="instructions" className={styles['form-label']}>作り方 <span className={styles['required']}>*</span></label>
+          <label htmlFor="instructions" className={styles['form-label']}>{t('instructions_label')} <span className={styles['required']}>*</span></label>
           <textarea
             id="instructions"
             name="instructions"
@@ -164,9 +148,8 @@ function RecipePostPage() {
           ></textarea>
         </div>
 
-        {/* 写真アップロード */}
         <div className={styles['form-group']}>
-          <label htmlFor="photo" className={styles['form-label']}>写真</label>
+          <label htmlFor="photo" className={styles['form-label']}>{t('photo_label')}</label>
           <input
             type="file"
             id="photo"
@@ -175,12 +158,11 @@ function RecipePostPage() {
             onChange={handleImageFileChange}
             className={styles['form-file-input']}
           />
-          {selectedImageFile && <p className={styles['file-name']}>選択中: {selectedImageFile.name}</p>}
+          {selectedImageFile && <p className={styles['file-name']}>{t('selected_file_text')}: {selectedImageFile.name}</p>}
         </div>
 
-        {/* 動画URL入力 */}
         <div className={styles['form-group']}>
-          <label htmlFor="video_url" className={styles['form-label']}>動画URL</label>
+          <label htmlFor="video_url" className={styles['form-label']}>{t('video_url_label')}</label>
           <input
             type="text"
             id="video_url"
@@ -188,13 +170,12 @@ function RecipePostPage() {
             value={recipeData.video_url}
             onChange={handleChange}
             className={styles['form-input']}
-            placeholder="YouTubeなどの動画URLを入力"
+            placeholder={t('video_url_placeholder')}
           />
         </div>
 
-        {/* 難易度 */}
         <div className={styles['form-group']}>
-          <label htmlFor="difficulty" className={styles['form-label']}>難易度</label>
+          <label htmlFor="difficulty" className={styles['form-label']}>{t('difficulty_label')}</label>
           <select
             id="difficulty"
             name="difficulty"
@@ -202,16 +183,15 @@ function RecipePostPage() {
             onChange={handleChange}
             className={styles['form-select']}
           >
-            <option value="">選択してや</option>
-            <option value="初心者向け">初心者向け</option>
-            <option value="普通">普通</option>
-            <option value="達人向け">達人向け</option>
+            <option value="">{t('select_difficulty_placeholder')}</option>
+            <option value="初心者向け">{t('difficulty_easy')}</option>
+            <option value="普通">{t('difficulty_medium')}</option>
+            <option value="達人向け">{t('difficulty_hard')}</option>
           </select>
         </div>
 
-        {/* 準備時間 */}
         <div className={styles['form-group']}>
-          <label htmlFor="prep_time_minutes" className={styles['form-label']}>準備時間 (分)</label>
+          <label htmlFor="prep_time_minutes" className={styles['form-label']}>{t('prep_time_label')} ({t('minutes_unit')})</label>
           <input
             type="number"
             id="prep_time_minutes"
@@ -223,9 +203,8 @@ function RecipePostPage() {
           />
         </div>
 
-        {/* 調理時間 */}
         <div className={styles['form-group']}>
-          <label htmlFor="cook_time_minutes" className={styles['form-label']}>調理時間 (分)</label>
+          <label htmlFor="cook_time_minutes" className={styles['form-label']}>{t('cook_time_label')} ({t('minutes_unit')})</label>
           <input
             type="number"
             id="cook_time_minutes"
@@ -238,7 +217,7 @@ function RecipePostPage() {
         </div>
 
         <button type="submit" className={styles['submit-button']}>
-          レシピを投稿する！
+          {t('post_recipe_button')}
         </button>
       </form>
     </div>

@@ -12,7 +12,7 @@ COPY package.json package-lock.json ./
 # プロジェクトの依存関係をインストール
 # --production フラグは本番環境に必要な依存関係のみをインストールします
 # 開発中は削除しても良いですが、イメージサイズを抑えるために推奨
-RUN npm install --production
+RUN npm install --production --legacy-peer-deps
 
 # ホストマシンのすべてのソースコードをコンテナの作業ディレクトリにコピー
 COPY . .

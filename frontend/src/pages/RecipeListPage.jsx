@@ -1,35 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
 import styles from './RecipeListPage.module.css';
 
 function RecipeListPage() {
+  const { t, i18n } = useTranslation(); // ★ t関数とi18nオブジェクトを取得
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null); // ログインユーザーIDを保持するstate
-  const [showDropdownForRecipeId, setShowDropdownForRecipeId] = useState(null); // ドロップダウン表示中のレシピID
-  const [successMessage, setSuccessMessage] = useState(null); // 成功メッセージ用のstate
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [showDropdownForRecipeId, setShowDropdownForRecipeId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const navigate = useNavigate();
-  const location = useLocation(); // useLocationフックを使用
+  const location = useLocation();
 
-  // 投稿ページや編集ページから渡されたメッセージがあるかチェックし、表示・非表示を管理
   useEffect(() => {
     if (location.state && location.state.message) {
       setSuccessMessage(location.state.message);
-      // メッセージを2秒後に非表示にする
       const timer = setTimeout(() => {
         setSuccessMessage(null);
-        // メッセージ表示後にURLのstateをクリアする（リロード時にメッセージが再表示されないように）
-        navigate(location.pathname, { replace: true, state: {} }); 
+        navigate(location.pathname, { replace: true, state: {} });
       }, 2000);
-      return () => clearTimeout(timer); // コンポーネントがアンマウントされたらタイマーをクリア
+      return () => clearTimeout(timer);
     }
   }, [location.state, navigate, location.pathname]);
 
-  // レシピ一覧の取得とログインユーザーIDの初期設定
   useEffect(() => {
-    // ログインユーザーIDをlocalStorageから取得
     const userId = localStorage.getItem('user_id');
     if (userId) {
       setCurrentUserId(userId);
@@ -40,7 +37,6 @@ function RecipeListPage() {
         setLoading(true);
         setError(null);
 
-        // レシピ一覧の取得には認証が不要なので、トークンはここでは送りません
         const response = await fetch('http://localhost:5001/api/recipes/');
 
         if (!response.ok) {
@@ -58,20 +54,17 @@ function RecipeListPage() {
     };
 
     fetchRecipes();
-  }, []); // 空の依存配列でコンポーネントマウント時に一度だけ実行
+  }, []);
 
-  // レシピカードクリック時の詳細ページへの遷移ハンドラ
   const handleRecipeClick = (recipeId) => {
-    navigate(`/recipes/${recipeId}`); // レシピ詳細ページへ遷移
+    navigate(`/recipes/${recipeId}`);
   };
 
-  // 「...」ボタンクリック時のドロップダウン表示/非表示ハンドラ
   const handleEllipsisClick = (e, recipeId) => {
-    e.stopPropagation(); // 親要素のクリックイベント（レシピ詳細への遷移）を防ぐ
+    e.stopPropagation();
     setShowDropdownForRecipeId(showDropdownForRecipeId === recipeId ? null : recipeId);
   };
 
-  // ドロップダウンメニュー外をクリックしたときに閉じるためのuseEffect
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showDropdownForRecipeId && !event.target.closest(`.${styles['dropdown-menu-container']}`)) {
@@ -84,9 +77,8 @@ function RecipeListPage() {
     };
   }, [showDropdownForRecipeId]);
 
-  // レシピ削除ハンドラ
   const handleDeleteRecipe = async (e, recipeId) => {
-    e.stopPropagation(); // 親要素のクリックイベントを防ぐ
+    e.stopPropagation();
     if (!window.confirm('本当にこのレシピを削除しますか？')) {
       return;
     }
@@ -108,9 +100,8 @@ function RecipeListPage() {
 
       if (response.ok) {
         alert('レシピが正常に削除されました。');
-        // 削除されたレシピをリストから除外してUIを更新
         setRecipes(prevRecipes => prevRecipes.filter(recipe => recipe.id !== recipeId));
-        setShowDropdownForRecipeId(null); // ドロップダウンを閉じる
+        setShowDropdownForRecipeId(null);
       } else {
         const errorData = await response.json();
         alert(`レシピの削除に失敗しました: ${errorData.message || response.statusText}`);
@@ -121,17 +112,18 @@ function RecipeListPage() {
     }
   };
 
-  // レシピ編集ハンドラ（編集ページへの遷移）
   const handleEditRecipe = (e, recipeId) => {
-    e.stopPropagation(); // 親要素のクリックイベントを防ぐ
-    navigate(`/recipes/${recipeId}/edit`); // 編集ページへ遷移
-    setShowDropdownForRecipeId(null); // ドロップダウンを閉じる
+    e.stopPropagation();
+    navigate(`/recipes/${recipeId}/edit`);
+    setShowDropdownForRecipeId(null);
   };
 
   if (loading) {
     return (
       <div className={styles['recipe-list-container']}>
-        <p className={styles['loading-message']}>レシピを読み込み中...🍳</p>
+        <p className={styles['loading-message']}>
+          {t('loading_recipes')} {/* ★ 翻訳キーを使用 */}
+        </p>
       </div>
     );
   }
@@ -146,8 +138,9 @@ function RecipeListPage() {
 
   return (
     <div className={styles['recipe-list-container']}>
-      <h1 className={styles['page-title']}>みんなのレシピ</h1>
-      {/* 成功メッセージの表示 */}
+      <h1 className={styles['page-title']}>
+        {t('all_recipes_title')} {/* ★ 翻訳キーを使用 */}
+      </h1>
       {successMessage && (
         <div className={styles['success-message-banner']}>
           {successMessage}
@@ -161,28 +154,27 @@ function RecipeListPage() {
               className={styles['recipe-card']}
               onClick={() => handleRecipeClick(recipe.id)}
             >
-              {/* 「...」ボタンのコンテナ（ログインユーザーの投稿のみ表示） */}
               {currentUserId && String(recipe.user_id) === currentUserId && (
                 <div className={styles['dropdown-menu-container']}>
-                  <button 
-                    className={styles['ellipsis-button']} 
+                  <button
+                    className={styles['ellipsis-button']}
                     onClick={(e) => handleEllipsisClick(e, recipe.id)}
                   >
                     ...
                   </button>
                   {showDropdownForRecipeId === recipe.id && (
                     <div className={styles['dropdown-menu']}>
-                      <button 
-                        className={styles['dropdown-item']} 
+                      <button
+                        className={styles['dropdown-item']}
                         onClick={(e) => handleDeleteRecipe(e, recipe.id)}
                       >
-                        削除
+                        {t('delete_button')} {/* ★ 翻訳キーを使用 */}
                       </button>
-                      <button 
-                        className={styles['dropdown-item']} 
+                      <button
+                        className={styles['dropdown-item']}
                         onClick={(e) => handleEditRecipe(e, recipe.id)}
                       >
-                        編集
+                        {t('edit_button')} {/* ★ 翻訳キーを使用 */}
                       </button>
                     </div>
                   )}
@@ -193,22 +185,35 @@ function RecipeListPage() {
                 <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-image']} />
               )}
               {!recipe.photo_url && (
-                <div className={styles['no-image-placeholder']}>画像なし</div>
+                <div className={styles['no-image-placeholder']}>
+                  {t('no_image_placeholder')} {/* ★ 翻訳キーを使用 */}
+                </div>
               )}
-              <h2 className={styles['recipe-title']}>{recipe.title}</h2>
+              <h2 className={styles['recipe-title']}>
+                {/* ★ 言語設定に応じてタイトルを動的に表示 */}
+                {i18n.language === 'en' && recipe.title_en ? recipe.title_en : recipe.title}
+              </h2>
               <div className={styles['recipe-meta']}>
-                <p>難易度: {recipe.difficulty || '不明'}</p>
-                <p>準備時間: {recipe.prep_time_minutes}分</p>
-                <p>調理時間: {recipe.cook_time_minutes}分</p>
+                <p>
+                  {t('difficulty_label')}: {recipe.difficulty || t('unknown')}
+                </p>
+                <p>
+                  {t('prep_time_label')}: {recipe.prep_time_minutes}{t('minutes_unit')}
+                </p>
+                <p>
+                  {t('cook_time_label')}: {recipe.cook_time_minutes}{t('minutes_unit')}
+                </p>
               </div>
             </div>
           ))
         ) : (
-          <p className={styles['no-recipes-message']}>まだレシピがありません。</p>
+          <p className={styles['no-recipes-message']}>
+            {t('no_recipes_found')} {/* ★ 翻訳キーを使用 */}
+          </p>
         )}
       </div>
       <Link to="/recipes/post" className={styles['add-recipe-button']}>
-        レシピを投稿する
+        {t('add_recipe_button')} {/* ★ 翻訳キーを使用 */}
       </Link>
     </div>
   );
