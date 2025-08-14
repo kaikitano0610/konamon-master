@@ -11,3 +11,5 @@ boto3
 google-cloud-translate==3.11.2
 python-dotenv==1.0.1
 cryptography
+pytest
+flake8
