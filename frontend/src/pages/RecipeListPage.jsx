@@ -182,7 +182,7 @@ function RecipeListPage() {
               )}
 
               {recipe.photo_url && (
-                <img src={`http://localhost:5001${recipe.photo_url}`} alt={recipe.title} className={styles['recipe-image']} />
+                <img src={recipe.photo_url} alt={recipe.title} className={styles['recipe-image']} />
               )}
               {!recipe.photo_url && (
                 <div className={styles['no-image-placeholder']}>

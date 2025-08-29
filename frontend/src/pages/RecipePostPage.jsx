@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
 import styles from './RecipePostPage.module.css';
 
 function RecipePostPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // ★ t関数を取得
   const navigate = useNavigate();
 
   const [recipeData, setRecipeData] = useState({
@@ -24,10 +24,10 @@ function RecipePostPage() {
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (!token) {
-      setMessage(t('login_required_post_message'));
+      setMessage(t('login_required_post_message')); // ★ 翻訳キーを使用
       navigate('/login');
     }
-  }, [navigate, t]);
+  }, [navigate, t]); // tも依存配列に追加
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +50,7 @@ function RecipePostPage() {
     setMessage('');
 
     if (!recipeData.title || !recipeData.ingredients || !recipeData.instructions) {
-      setMessage(t('required_fields_message'));
+      setMessage(t('required_fields_message')); // ★ 翻訳キーを使用
       return;
     }
 
@@ -70,7 +70,7 @@ function RecipePostPage() {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        setMessage(t('login_required_post_message'));
+        setMessage(t('login_required_post_message')); // ★ 翻訳キーを使用
         navigate('/login');
         return;
       }
@@ -84,7 +84,7 @@ function RecipePostPage() {
       });
 
       if (response.status === 401) {
-        setMessage(t('session_expired_message'));
+        setMessage(t('session_expired_message')); // ★ 翻訳キーを使用
         navigate('/login');
         return;
       }
@@ -92,20 +92,20 @@ function RecipePostPage() {
       const result = await response.json();
 
       if (response.ok) {
-        navigate('/recipes', { state: { message: t('recipe_posted_message') } });
+        navigate('/recipes', { state: { message: t('recipe_posted_message') } }); // ★ 翻訳キーを使用
       } else {
-        setMessage(result.message || t('post_recipe_failed_message', { status: response.status }));
+        setMessage(result.message || t('post_recipe_failed_message', { status: response.status })); // ★ 翻訳キーを使用
         console.error('APIエラー:', result);
       }
     } catch (error) {
       console.error('API呼び出し中にエラーが発生しました:', error);
-      setMessage(t('network_error_message', { error: error.message }));
+      setMessage(t('network_error_message', { error: error.message })); // ★ 翻訳キーを使用
     }
   };
 
   return (
     <div className={styles['recipe-post-page-container']}>
-      <h1 className={styles['page-title']}>{t('post_recipe_title')}</h1>
+      <h1 className={styles['page-title']}>{t('post_recipe_title')}</h1> {/* ★ 翻訳キーを使用 */}
       {message && <p className={styles['message']}>{message}</p>}
       
       <form onSubmit={handleSubmit} className={styles['recipe-form']}>
@@ -184,9 +184,9 @@ function RecipePostPage() {
             className={styles['form-select']}
           >
             <option value="">{t('select_difficulty_placeholder')}</option>
-            <option value="easy">{t('difficulty_easy')}</option> {/* ★ ここを修正 */}
-            <option value="medium">{t('difficulty_medium')}</option> {/* ★ ここを修正 */}
-            <option value="hard">{t('difficulty_hard')}</option> {/* ★ ここを修正 */}
+            <option value="初心者向け">{t('difficulty_easy')}</option>
+            <option value="普通">{t('difficulty_medium')}</option>
+            <option value="達人向け">{t('difficulty_hard')}</option>
           </select>
         </div>
 
