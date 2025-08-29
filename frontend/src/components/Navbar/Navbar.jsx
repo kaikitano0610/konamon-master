@@ -1,10 +1,8 @@
 import React ,{ useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; 
-import './Navbar.css';
+import './Navbar.css'; 
 
 function Navbar() {
-  const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -16,7 +14,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-brand">
         <Link to="/"><span>粉</span>もんベストマッチ</Link>
-      </div>
+      </div> 
       <button className="navbar-toggler" onClick={toggleMenu}>
         <div className="bar"></div>
         <div className="bar"></div>
@@ -25,22 +23,22 @@ function Navbar() {
       <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
         <ul className="navbar-nav">
           <li>
-            <Link to={"/"} onClick={() => setIsOpen(false)}>{t('home')}</Link>
+            <Link to={"/"} onClick={() => setIsOpen(false)}>ホーム</Link>
           </li>
           <li>
-            <Link to={"/nearby"} onClick={() => setIsOpen(false)}>{t('shops')}</Link>
+            <Link to={"/nearby"} onClick={() => setIsOpen(false)}>お店を探す</Link>
           </li>
           <li>
-            <Link to={"/recommend"} onClick={() => setIsOpen(false)}>{t('recommend')}</Link> 
+            <Link to={"/recommend"} onClick={() => setIsOpen(false)}>気分で探す</Link>
           </li>
           <li>
-            <Link to={"/recipes"} onClick={() => setIsOpen(false)}>{t('recipes')}</Link>
+            <Link to={"/recipes"} onClick={() => setIsOpen(false)}>レシピ一覧</Link>
           </li>
           <li>
-            <Link to={"/login"} onClick={() => setIsOpen(false)}>{t('login')}</Link> 
+            <Link to={"/login"} onClick={() => setIsOpen(false)}>ログイン</Link>
           </li>
           <li>
-            <Link to={"/config"} onClick={() => setIsOpen(false)}>{t('config')}</Link>
+            <Link to={"/config"} onClick={() => setIsOpen(false)}>設定</Link>
           </li>
         </ul>
       </div>

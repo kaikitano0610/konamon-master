@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // useRef を追加
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
 import styles from './ShopListPage.module.css';
 import RoomIcon from '@mui/icons-material/Room';
 
 function ShopListPage() {
-  const { t, i18n } = useTranslation(); // ★ t関数とi18nオブジェクトを取得
   const location = useLocation();
   const navigate = useNavigate();
-  // ★ バックエンドからのデータに name_en, address_en が含まれていることを想定
   const { shopData, fromNearby, foodType } = location.state || { shopData: [] };
 
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [loadingImages, setLoadingImages] = useState(true);
-  const [hasImageLoadErrors, setHasImageLoadErrors] = useState(false);
+  const [hasImageLoadErrors, setHasImageLoadErrors] = useState(false); // 画像読み込みエラーがあったかどうか
 
+  // timeoutId を useRef で保持
   const timeoutIdRef = useRef(null);
 
   const handleCardClick = (placeId) => {
@@ -22,35 +20,33 @@ function ShopListPage() {
   };
 
   const getTodayOpeningHours = (openingHours) => {
-    // ★ 全体を多言語対応
     if (!openingHours || !Array.isArray(openingHours) || openingHours.length === 0) {
-      return t('opening_hours_unknown');
+      return '営業時間不明';
     }
 
-    const daysOfWeek = [t('day_sun_full'), t('day_mon_full'), t('day_tue_full'), t('day_wed_full'), t('day_thu_full'), t('day_fri_full'), t('day_sat_full')];
+    const daysOfWeek = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
     const date = new Date();
     const todayIndex = date.getDay();
     const todayDayOfWeek = daysOfWeek[todayIndex];
 
     const todayHours = openingHours.find(hour => hour.startsWith(todayDayOfWeek));
-    const hoursText = todayHours ? todayHours.split(': ')[1] : t('closed_today_or_unknown');
+    const hoursText = todayHours ? todayHours.split(': ')[1] : '本日は定休日、または営業時間不明';
 
     return hoursText;
   };
 
   const formatOpeningHoursForShopList = (periods) => {
-    // ★ 全体を多言語対応
     if (!periods || !Array.isArray(periods) || periods.length === 0) {
-      return t('opening_hours_unknown');
+      return "営業時間不明";
     }
-    const daysOfWeek = [t('day_sun'), t('day_mon'), t('day_tue'), t('day_wed'), t('day_thu'), t('day_fri'), t('day_sat')];
+    const daysOfWeek = ["日", "月", "火", "水", "木", "金", "土"];
     const now = new Date();
     const today = now.getDay();
 
     const todayPeriods = periods.filter(p => p.open && p.open.day === today);
 
     if (todayPeriods.length === 0) {
-      return t('closed_today_or_unknown');
+      return "本日定休日 / 営業時間不明";
     }
 
     const displayStrings = [];
@@ -59,24 +55,25 @@ function ShopListPage() {
       const closeTime = `${p.close.time.substring(0, 2)}:${p.close.time.substring(2, 4)}`;
 
       if (p.open.day !== p.close.day) {
-         displayStrings.push(`${openTime}〜${t('next_day_prefix')}${daysOfWeek[p.close.day]}${closeTime}`);
+         displayStrings.push(`${openTime}〜翌${daysOfWeek[p.close.day]}${closeTime}`);
       } else {
          displayStrings.push(`${openTime}〜${closeTime}`);
       }
     });
 
-    return `${t('today_label')} (${daysOfWeek[today]}): ${displayStrings.join(' / ')}`;
+    return `今日 (${daysOfWeek[today]}): ${displayStrings.join(' / ')}`;
   };
 
+  // 画像の読み込みを監視するuseEffect
   useEffect(() => {
     if (shopData && shopData.length > 0) {
-      setLoadingImages(true);
-      setImagesLoaded(false);
-      setHasImageLoadErrors(false);
+      setLoadingImages(true); // 新しいデータが来たらローディングを開始
+      setImagesLoaded(false); // 画像がまだロードされていない状態にリセット
+      setHasImageLoadErrors(false); // エラー状態もリセット
 
       const imagesToProcess = shopData.filter(shop => shop.photo_url || shop.main_photo_url);
       
-      if (imagesToProcess.length === 0) {
+      if (imagesToProcess.length === 0) { // 画像URLがない場合はすぐに読み込み完了
         setImagesLoaded(true);
         setLoadingImages(false);
         return;
@@ -88,51 +85,59 @@ function ShopListPage() {
           img.src = shop.photo_url || shop.main_photo_url;
           img.onload = () => resolve();
           img.onerror = () => {
-            console.warn(t('image_load_failed_message', { url: img.src })); // ★ 翻訳キーを使用
-            setHasImageLoadErrors(true);
-            resolve();
+            console.warn(`画像の読み込みに失敗しました: ${img.src}`);
+            setHasImageLoadErrors(true); // エラーがあったことを記録
+            resolve(); // 失敗してもPromiseは解決し、Promise.allSettledをブロックしない
           };
         });
       });
 
+      // Promise.allSettled が成功/失敗にかかわらず完了したら、状態を更新
       Promise.allSettled(imagePromises).then(() => {
         setImagesLoaded(true);
         setLoadingImages(false);
+        // Promise.allSettledが完了した時点でタイムアウトタイマーがあればクリアする
         if (timeoutIdRef.current) {
           clearTimeout(timeoutIdRef.current);
-          timeoutIdRef.current = null;
+          timeoutIdRef.current = null; // クリアしたらnullに戻す
         }
       });
 
+      // タイムアウト設定 (5秒後には画像読み込みを完了とみなす)
       timeoutIdRef.current = setTimeout(() => {
-        console.warn(t('image_load_timeout_warning')); // ★ 翻訳キーを使用
-        setImagesLoaded(true);
-        setLoadingImages(false);
-        timeoutIdRef.current = null;
+        // Promise.allSettledがまだ完了していない場合にのみ強制終了
+        // imagesLoadedがfalseの場合にのみ発動するが、Promise.allSettledがすでに完了していれば
+        // setImagesLoaded(true)が呼ばれているので、このisMounted.currentチェックが有効に働く
+        console.warn("画像読み込みがタイムアウトしました。");
+        setImagesLoaded(true); // 強制的にロード完了状態へ
+        setLoadingImages(false); // ローディングを停止
+        timeoutIdRef.current = null; // タイマーをクリアしたことを示す
       }, 5000);
 
+      // クリーンアップ関数
       return () => {
+        // コンポーネントがアンマウントされるか、useEffectが再実行されるときにタイマーをクリア
         if (timeoutIdRef.current) {
           clearTimeout(timeoutIdRef.current);
           timeoutIdRef.current = null;
         }
       };
     } else {
+      // shopDataがない場合はローディングをすぐに終了
       setImagesLoaded(true);
       setLoadingImages(false);
     }
-  }, [shopData, t]); // ★ tも依存配列に追加
+  }, [shopData]); // 依存配列はshopDataのみ
 
-  // ★ ページタイトルも多言語対応
   const pageTitleContent = fromNearby
     ? (
         <>
-          <span>{foodType || t('unknown')}の</span>
+          <span>{foodType || '不明'}の</span>
           <br />
-          <span>{t('open_shops_nearby_title')}</span>
+          <span>営業中のお店</span>
         </>
       )
-    : t('recommended_shops_title');
+    : 'おすすめのお店やで！';
 
   if (loadingImages || !shopData || shopData.length === 0) {
     return (
@@ -140,16 +145,16 @@ function ShopListPage() {
         <h1 className={styles['shop-list-title']}>{pageTitleContent}</h1>
         {loadingImages ? (
           <div className={styles['loading-message']}>
-            {t('loading_images_message')}
+            お店の画像を読み込み中やで！
             <span className={styles['loading-dot']}>.</span>
             <span className={styles['loading-dot']}>.</span>
             <span className={styles['loading-dot']}>.</span>
           </div>
         ) : (
-          <h1 className={styles['no-results-title']}>{t('no_shops_found_message')}</h1>
+          <h1 className={styles['no-results-title']}>お店が見つかりませんでした…🐙</h1>
         )}
         <button className={styles['back-button']} onClick={() => navigate('/')}>
-          {t('back_button')}
+          戻る
         </button>
       </div>
     );
@@ -165,24 +170,20 @@ function ShopListPage() {
             className={styles['shop-card']}
             onClick={() => handleCardClick(shop.place_id)}
           >
-            {/* ★ 言語設定に応じて店舗名を動的に表示 */}
-            <h2 className={styles['shop-name']}>
-              {i18n.language === 'en' && shop.name_en ? shop.name_en : shop.name}
-            </h2>
+            <h2 className={styles['shop-name']}>{shop.name}</h2>
             <div className={styles['rating-container']}>
-              {shop.displayDistance && <p className={styles['shop-distance']}>{t('from_here_label')}{shop.displayDistance}</p>}
+              {shop.displayDistance && <p className={styles['shop-distance']}>ここから{shop.displayDistance}</p>}
               {shop.rating && (
               <div className={styles['shop-rating']}>
                 ⭐️ {shop.rating.toFixed(1)}
                 {shop.user_ratings_total && ` (${shop.user_ratings_total})`}
               </div>
             )}
-              {/* ★ 言語設定に応じて住所を動的に表示 */}
-              <p>{t('address_label')}: {i18n.language === 'en' && shop.address_en ? shop.address_en : shop.address}</p>
+              住所: {shop.address}
             </div>
-            {shop.phone && <p className={styles['shop-phone']}>{t('phone_label')}: {shop.phone}</p>}
+            {shop.phone && <p className={styles['shop-phone']}>電話: {shop.phone}</p>}
             <div className={styles['shop-hours']}>
-              <h3>{t('opening_hours_label')}:</h3>
+              <h3>営業時間:</h3>
               <p>
                 {shop.displayOpeningHours
                  || (shop.opening_hours_periods ? formatOpeningHoursForShopList(shop.opening_hours_periods) : getTodayOpeningHours(shop.opening_hours))}
@@ -195,7 +196,7 @@ function ShopListPage() {
                 className={styles['shop-photo']}
               />
             ) : (
-              <div className={styles['no-image-placeholder']}>{t('no_photo_message')}</div>
+              <div className={styles['no-image-placeholder']}>画像なし</div>
             )}
 
             {shop.Maps_url && (
@@ -206,7 +207,7 @@ function ShopListPage() {
                 className={styles['google-maps-link']}
                 onClick={(e) => e.stopPropagation()}
               >
-                <RoomIcon className={styles['map-icon']} /> {t('view_on_Maps_link')}
+                <RoomIcon className={styles['map-icon']} /> Google マップで見る
               </a>
             )}
           </div>
@@ -216,7 +217,7 @@ function ShopListPage() {
         className={styles['back-button']}
         onClick={() => navigate('/')}
       >
-        {t('back_button')}
+        戻る
       </button>
     </div>
   );

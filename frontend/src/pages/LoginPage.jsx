@@ -2,19 +2,17 @@
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
-import styles from './AuthPage.module.css';
+import styles from './AuthPage.module.css'; // 認証ページ共通のCSSを使用
 
 function LoginPage() {
-  const { t } = useTranslation(); // ★ t関数を取得
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // フォームのデフォルト送信を防ぐ
+    setError(''); // エラーメッセージをクリア
 
     try {
       const response = await fetch('http://localhost:5001/api/auth/login', {
@@ -28,28 +26,32 @@ function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        // ログイン成功
+        // アクセストークンをLocalStorageに保存
         localStorage.setItem('access_token', data.access_token);
+        // 必要に応じてユーザー情報も保存
         localStorage.setItem('user_id', data.user.id);
         localStorage.setItem('username', data.user.username);
 
-        navigate('/recipes');
+        navigate('/recipes'); // トップページなどへリダイレクト
       } else {
-        setError(data.message || t('login_failed_message')); // ★ 翻訳キーを使用
+        // ログイン失敗
+        setError(data.message || 'ログインに失敗しました。');
       }
     } catch (err) {
       console.error('ログイン中にエラーが発生しました:', err);
-      setError(t('server_communication_error_message')); // ★ 翻訳キーを使用
+      setError('サーバーとの通信に失敗しました。');
     }
   };
 
   return (
     <div className={styles['auth-page-container']}>
       <div className={styles['auth-card']}>
-        <h1 className={styles['auth-title']}>{t('login_title')}</h1> {/* ★ 翻訳キーを使用 */}
+        <h1 className={styles['auth-title']}>ログイン</h1>
         <form onSubmit={handleLogin} className={styles['auth-form']}>
           <input
             type="text"
-            placeholder={t('username_placeholder')} // ★ 翻訳キーを使用
+            placeholder="ユーザー名"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className={styles['auth-input']}
@@ -57,19 +59,19 @@ function LoginPage() {
           />
           <input
             type="password"
-            placeholder={t('password_placeholder')} // ★ 翻訳キーを使用
+            placeholder="パスワード"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={styles['auth-input']}
             required
           />
           {error && <p className={styles['error-message']}>{error}</p>}
-          <button type="submit" className={styles['auth-button']}>{t('login_button')}</button> {/* ★ 翻訳キーを使用 */}
+          <button type="submit" className={styles['auth-button']}>ログイン</button>
         </form>
         <p className={styles['auth-link-text']}>
-          {t('no_account_text')}{' '} {/* ★ 翻訳キーを使用 */}
+          アカウントをお持ちでないですか？{' '}
           <br />
-          <Link to="/signin" className={styles['auth-link']}>{t('signup_link')}</Link> {/* ★ 翻訳キーを使用 */}
+          <Link to="/signin" className={styles['auth-link']}>新規登録</Link>
         </p>
       </div>
     </div>

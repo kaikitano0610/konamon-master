@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css'; 
 import '../styles/takoyan.css';
-function HomePage() {
+
+function HomePageEnglish() {
   const navigate = useNavigate();
 
   const handleMoodSearch = () => {
@@ -16,8 +17,10 @@ function HomePage() {
   return (
     <div className={styles['home-page-container']}>
       <div className={styles['dialog-bubble']}>
-        <p className={styles['takoyan-dialog-text']}>ええ店、探し出すで！</p>
-        <p className={styles['takoyan-dialog-text']}>どないして探す？</p>
+        {/* Translated from: ええ店、探し出すで！ */}
+        <p className={styles['takoyan-dialog-text']}>I'll find you a great place!</p>
+        {/* Translated from: どないして探す？ */}
+        <p className={styles['takoyan-dialog-text']}>How do you want to search?</p>
       </div>
       <div className="takoyan-icon"></div>
       <div className={styles['selection-buttons']}>
@@ -25,17 +28,19 @@ function HomePage() {
           className={`${styles['selection-button']} ${styles['mood-search-button']}`}
           onClick={handleMoodSearch}
         >
-          今日の気分から探す
+          {/* Translated from: 今日の気分から探す */}
+          Search by Mood
         </button>
         <button
           className={`${styles['selection-button']} ${styles['nearby-search-button']}`}
           onClick={handleNearbySearch}
         >
-          近くの営業中の<br></br>お店から探す
+          {/* Translated from: 近くの営業中のお店から探す */}
+          Search Nearby <br></br> Open Shops
         </button>
       </div>
     </div>
   );
 }
 
-export default HomePage;
+export default HomePageEnglish;

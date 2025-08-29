@@ -1,11 +1,12 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; 
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 import SplashScreen from './components/SplashScreen/SplashScreen';
 import Navbar from './components/Navbar/Navbar';
 
 import HomePage from './pages/HomePage';
+import HomePageEnglish from './pages/HomePageEnglish'
 import LoginPage from './pages/LoginPage';
 import SigninPage from './pages/SigninPage';
 import NearbyPage from './pages/NearbyPage';
@@ -20,8 +21,9 @@ import NotFoundPage from './pages/NotFoundPage';
 import ShopListPage from './pages/ShopListPage';
 
 function App() {
+
   const [showSplash, setShowSplash] = useState(
-    sessionStorage.getItem('hasSeenSplash') !== 'true'
+    sessionStorage.getItem('hasSeenSplash') !== 'true' 
   );
 
   useEffect(() => {
@@ -29,6 +31,7 @@ function App() {
       sessionStorage.setItem('hasSeenSplash', 'true');
     }
   }, [showSplash]);
+
 
   return (
     <Router>
@@ -40,10 +43,11 @@ function App() {
         <div className='contentWrapper'>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/home-english" element={<HomePageEnglish/>} /> 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signin" element={<SigninPage />} />
           <Route path="/nearby" element={<NearbyPage />} />
-          <Route path="/nearby/list" element={<ShopListPage />} />
+          <Route path="/nearby/list" element={<ShopListPage />} /> 
           <Route path="/recommend" element={<RecommendPage />} />
           <Route path="/recommend/list" element={<ShopListPage />} />
           <Route path="/shops/:placeId" element={<ShopDetailPage />} />

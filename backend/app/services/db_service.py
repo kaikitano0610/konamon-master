@@ -1,34 +1,31 @@
+# konamon-master/backend/services/db_service.py
+import pymysql.cursors
 import os
-from google.cloud import translate_v2 as translate
-from google.oauth2 import service_account
 
-# 環境変数からGoogle APIキーを読み込む
-api_key = os.environ.get('GOOGLE_API_KEY')
-translate_client = translate.Client(api_key=api_key)
+# 環境変数は app.py が起動時に読み込み、os.environ に設定されるため、
+# ここでは直接 os.environ から取得します。
+DB_HOST = os.environ.get('DB_HOST')
+DB_USER = os.environ.get('DB_USER')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
+DB_NAME = os.environ.get('DB_NAME')
+DB_PORT = int(os.environ.get('DB_PORT', 3306))
 
-def translate_text(text, target_language):
-    """
-    指定されたテキストを目的の言語に翻訳する
+def get_db_connection():
+    """データベース接続を確立する関数"""
+    if not all([DB_HOST, DB_USER, DB_PASSWORD, DB_NAME]):
+        raise ValueError("Database connection environment variables are not set.")
 
-    Args:
-        text (str): 翻訳したいテキスト
-        target_language (str): 翻訳先の言語コード (例: 'en', 'ja')
-
-    Returns:
-        str: 翻訳されたテキスト
-    """
-    if not text:
-        return ""
-    
-    # 翻訳を実行
-    result = translate_client.translate(text, target_language=target_language)
-    
-    # 翻訳結果を返す
-    return result['translatedText']
-
-if __name__ == '__main__':
-    # このファイル単体で動作確認するためのコード
-    japanese_text = "これはテストメッセージです。"
-    english_text = translate_text(japanese_text, 'en')
-    print(f"日本語: {japanese_text}")
-    print(f"英語: {english_text}")
+    try:
+        connection = pymysql.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME,
+            port=DB_PORT,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        print("Successfully connected to database!") # 接続確認用
+        return connection
+    except pymysql.Error as e:
+        print(f"データベース接続エラー: {e}")
+        raise # 接続失敗を呼び出し元に通知

@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
-import styles from './RecommendPage.module.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import styles from './RecommendPage.module.css'; 
 import '../styles/takoyan.css';
 
 function RecommendPage() {
-  const { t } = useTranslation(); // ★ t関数を取得
   const [step, setStep] = useState(0);
   const [selectedFoodType, setSelectedFoodType] = useState(null);
   const [moodInput, setMoodInput] = useState('');
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleFoodTypeSelect = (type) => {
     setSelectedFoodType(type);
@@ -18,7 +16,7 @@ function RecommendPage() {
 
   const handleSearchClick = async () => {
     if (!moodInput.trim()) {
-      alert(t('enter_mood_alert')); // ★ 翻訳キーを使用
+      alert("今日の気分を入力してや！");
       return;
     }
 
@@ -39,56 +37,56 @@ function RecommendPage() {
       }
 
       const shopData = await response.json();
-      navigate('/recommend/list', { state: { shopData } });
+      navigate('/recommend/list', { state: { shopData } }); 
     } catch (error) {
       console.error("API呼び出し中にエラーが発生しました:", error);
-      alert(t('search_shops_failed_alert')); // ★ 翻訳キーを使用
+      alert("お店の検索中にエラーが発生しました。もう一度お試しください。");
     }
   };
 
   return (
     <div className={styles['recommend-page-container']}>
-      {step === 0 && (
+      {step === 0 && ( 
         <div className={styles['food-select-section']}>
           <div className={styles["dialog-bubble"]}>
-            <p className={styles["takoyan-dialog-text"]}>{t('recommend_dialog_1')}</p> {/* ★ 翻訳キーを使用 */}
-            <p className={styles["takoyan-dialog-text"]}>{t('recommend_dialog_2')}</p> {/* ★ 翻訳キーを使用 */}
+            <p className={styles["takoyan-dialog-text"]}>ほな、気分で探そか！</p>
+            <p className={styles["takoyan-dialog-text"]}>どっちを探しましょ？？</p>
           </div>
-          <div className="takoyan-icon"></div>
-          <h1 className={styles['food-select-title']}>{t('food_select_title')}</h1> {/* ★ 翻訳キーを使用 */}
+          <div className="takoyan-icon"></div> 
+          <h1 className={styles['food-select-title']}>粉もん選択</h1>
           <div className={styles['food-select-buttons']}>
             <button
-              className={`${styles['food-button']} ${styles['okonomiyaki-button']}`}
+              className={`${styles['food-button']} ${styles['okonomiyaki-button']}`} 
               onClick={() => handleFoodTypeSelect('お好み焼き')}
             >
-              {t('okonomiyaki_button')} {/* ★ 翻訳キーを使用 */}
+              お好み焼き
             </button>
             <button
               className={`${styles['food-button']} ${styles['takoyaki-button']}`}
               onClick={() => handleFoodTypeSelect('たこ焼き')}
             >
-              {t('takoyaki_button')} {/* ★ 翻訳キーを使用 */}
+              たこ焼き
             </button>
           </div>
         </div>
       )}
 
-      {step === 1 && (
+      {step === 1 && ( 
         <div className={styles['mood-hearing-section']}>
           <div className={styles["dialog-bubble"]}>
-            <p className={styles["takoyan-dialog-text"]}>{t('mood_dialog_1')}</p> {/* ★ 翻訳キーを使用 */}
-            <p className={styles["takoyan-dialog-text"]}>{t('mood_dialog_2')}</p> {/* ★ 翻訳キーを使用 */}
+            <p className={styles["takoyan-dialog-text"]}>今日はどんな</p>
+            <p className={styles["takoyan-dialog-text"]}>気分なん？？</p>
           </div>
-          <div className="takoyan-icon"></div>
+          <div className="takoyan-icon"></div> 
           <div className={styles['mood-input-area']}>
             <textarea
               className={styles['mood-textarea']}
-              placeholder={t('mood_input_placeholder')} // ★ 翻訳キーを使用
+              placeholder="今日の気分やいきたいお店の条件を入力"
               value={moodInput}
               onChange={(e) => setMoodInput(e.target.value)}
             ></textarea>
-            <button className={styles['search-button']} onClick={handleSearchClick}>
-              {t('search_button')} {/* ★ 翻訳キーを使用 */}
+            <button className={styles['search-button']} onClick={handleSearchClick}> 
+              探す
             </button>
           </div>
         </div>

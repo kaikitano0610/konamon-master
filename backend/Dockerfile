@@ -7,6 +7,8 @@ COPY backend/requirements.txt backend/requirements.txt
 
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
+# アプリケーションのソースコードをコピーします
+# これにより、`backend`ディレクトリがコンテナのWORKDIR(/code)内に作成されます
 COPY backend/ backend/
 
 EXPOSE 5000

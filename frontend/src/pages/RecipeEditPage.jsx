@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // ★ useTranslationをインポート
-import styles from './RecipeEditPage.module.css';
+import styles from './RecipeEditPage.module.css'; // 既存の投稿ページのCSSを流用
 
 function RecipeEditPage() {
-  const { t, i18n } = useTranslation(); // ★ t関数とi18nオブジェクトを取得
   const { recipeId } = useParams();
   const navigate = useNavigate();
 
@@ -22,8 +20,8 @@ function RecipeEditPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
-  const [selectedNewImageFile, setSelectedNewImageFile] = useState(null);
-  const [newImagePreviewUrl, setNewImagePreviewUrl] = useState(null);
+  const [selectedNewImageFile, setSelectedNewImageFile] = useState(null); // 新しく選択された画像ファイル
+  const [newImagePreviewUrl, setNewImagePreviewUrl] = useState(null); // 新しい画像プレビューURL
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -34,7 +32,7 @@ function RecipeEditPage() {
 
         const token = localStorage.getItem('access_token');
         if (!token) {
-          setMessage(t('login_required_message')); // ★ 翻訳キーを使用
+          setMessage('ログインが必要です。');
           navigate('/login');
           return;
         }
@@ -49,21 +47,16 @@ function RecipeEditPage() {
 
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error(t('recipe_not_found_message')); // ★ 翻訳キーを使用
+            throw new Error('編集対象のレシピが見つかりませんでした。');
           }
-          throw new Error(t('fetch_recipe_failed_message', { status: response.statusText })); // ★ 翻訳キーを使用
+          throw new Error(`レシピデータの取得に失敗しました: ${response.statusText}`);
         }
 
         const data = await response.json();
-        // ★ 取得したデータから、現在の言語に応じて適切な値を初期値としてセット
-        const currentTitle = i18n.language === 'en' ? data.title_en || data.title : data.title;
-        const currentIngredients = i18n.language === 'en' ? data.ingredients_en || data.ingredients : data.ingredients;
-        const currentInstructions = i18n.language === 'en' ? data.instructions_en || data.instructions : data.instructions;
-
         setRecipeData({
-          title: currentTitle || '',
-          ingredients: currentIngredients || '',
-          instructions: currentInstructions || '',
+          title: data.title || '',
+          ingredients: data.ingredients || '',
+          instructions: data.instructions || '',
           difficulty: data.difficulty || '',
           prep_time_minutes: data.prep_time_minutes || '',
           cook_time_minutes: data.cook_time_minutes || '',
@@ -72,14 +65,14 @@ function RecipeEditPage() {
         });
       } catch (err) {
         console.error('レシピデータの取得中にエラーが発生しました:', err);
-        setError(err.message || t('failed_to_load_recipe_message')); // ★ 翻訳キーを使用
+        setError(err.message || 'レシピの読み込みに失敗しました。');
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecipe();
-  }, [recipeId, navigate, i18n.language, t]); // ★ i18n.language と t も依存配列に追加
+  }, [recipeId, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,14 +96,14 @@ function RecipeEditPage() {
     setMessage('');
 
     if (!recipeData.title || !recipeData.ingredients || !recipeData.instructions) {
-      setMessage(t('required_fields_message')); // ★ 翻訳キーを使用
+      setMessage('タイトル、材料、作り方は必須です');
       return;
     }
 
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {
-        setMessage(t('login_required_message')); // ★ 翻訳キーを使用
+        setMessage('ログインが必要です。');
         navigate('/login');
         return;
       }
@@ -127,13 +120,16 @@ function RecipeEditPage() {
       if (selectedNewImageFile) {
         formData.append('image', selectedNewImageFile);
       } else {
-        formData.append('photo_url', recipeData.photo_url || '');
+        // 新しい画像が選択されていない場合、既存のphoto_urlを送信
+        // これにより、バックエンドはphoto_urlが更新されたのか、維持されているのかを判断できる
+        formData.append('photo_url', recipeData.photo_url || ''); // 空の場合も明示的に送信
       }
 
       const response = await fetch(`http://localhost:5001/api/recipes/${recipeId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
+          // FormDataを送信する場合、'Content-Type'はブラウザが自動的に設定するので不要
         },
         body: formData,
       });
@@ -141,21 +137,21 @@ function RecipeEditPage() {
       const result = await response.json();
 
       if (response.ok) {
-        navigate(`/recipes/${recipeId}`, { state: { message: t('recipe_updated_message') } }); // ★ 翻訳キーを使用
+        navigate(`/recipes/${recipeId}`, { state: { message: 'レシピを更新しました！' } });
       } else {
-        setMessage(result.message || t('update_recipe_failed_message', { status: response.status })); // ★ 翻訳キーを使用
+        setMessage(result.message || `レシピの更新に失敗しました: ${response.status}`);
         console.error('APIエラー:', result);
       }
     } catch (error) {
       console.error('API呼び出し中にエラーが発生しました:', error);
-      setMessage(t('network_error_message', { error: error.message })); // ★ 翻訳キーを使用
+      setMessage(`ネットワークエラーが発生しました: ${error.message}`);
     }
   };
 
   if (loading) {
     return (
       <div className={styles['recipe-post-page-container']}>
-        <p className={styles['loading-message']}>{t('loading_recipe_message')}</p> {/* ★ 翻訳キーを使用 */}
+        <p className={styles['loading-message']}>レシピを読み込み中... 😋</p>
       </div>
     );
   }
@@ -165,7 +161,7 @@ function RecipeEditPage() {
       <div className={styles['recipe-post-page-container']}>
         <p className={styles['error-message']}>{error}</p>
         <button onClick={() => navigate('/recipes')} className={styles['submit-button']}>
-          {t('back_to_recipe_list_button')} {/* ★ 翻訳キーを使用 */}
+          レシピ一覧に戻る
         </button>
       </div>
     );
@@ -173,37 +169,38 @@ function RecipeEditPage() {
 
   return (
     <div className={styles['recipe-post-page-container']}>
-      <h1 className={styles['page-title']}>{t('edit_recipe_title')}</h1> {/* ★ 翻訳キーを使用 */}
+      <h1 className={styles['page-title']}>レシピを編集する</h1>
       {message && <p className={styles['message']}>{message}</p>}
 
       <form onSubmit={handleSubmit} className={styles['recipe-form']}>
         <div className={styles['form-group']}>
-          <label htmlFor="title" className={styles['form-label']}>{t('recipe_title_label')} <span className={styles['required']}>*</span></label>
+          <label htmlFor="title" className={styles['form-label']}>タイトル <span className={styles['required']}>*</span></label>
           <input type="text" id="title" name="title" value={recipeData.title} onChange={handleChange} className={styles['form-input']} required />
         </div>
 
         <div className={styles['form-group']}>
-          <label htmlFor="ingredients" className={styles['form-label']}>{t('ingredients_label')} <span className={styles['required']}>*</span></label>
+          <label htmlFor="ingredients" className={styles['form-label']}>材料 <span className={styles['required']}>*</span></label>
           <textarea id="ingredients" name="ingredients" value={recipeData.ingredients} onChange={handleChange} className={styles['form-textarea']} rows="5" required></textarea>
         </div>
 
         <div className={styles['form-group']}>
-          <label htmlFor="instructions" className={styles['form-label']}>{t('instructions_label')} <span className={styles['required']}>*</span></label>
+          <label htmlFor="instructions" className={styles['form-label']}>作り方 <span className={styles['required']}>*</span></label>
           <textarea id="instructions" name="instructions" value={recipeData.instructions} onChange={handleChange} className={styles['form-textarea']} rows="8" required></textarea>
         </div>
         
+        {/* 現在の画像または選択中の新しい画像のプレビュー */}
         {(newImagePreviewUrl || recipeData.photo_url) && (
           <div className={styles['form-group']}>
-            <label className={styles['form-label']}>{t('photo_preview_label')}</label>
+            <label className={styles['form-label']}>写真プレビュー</label>
             <div className={styles['current-image-preview']}>
               {newImagePreviewUrl ? (
                 <>
-                  <p>{t('new_image_selected_text')}</p>
+                  <p>選択中の新しい画像:</p>
                   <img src={newImagePreviewUrl} alt="New Preview" className={styles['preview-image']} />
                 </>
               ) : (
                 <>
-                  <p>{t('current_image_text')}</p>
+                  <p>現在の登録画像:</p>
                   <img src={recipeData.photo_url} alt="Current Recipe" className={styles['preview-image']} />
                 </>
               )}
@@ -211,8 +208,9 @@ function RecipeEditPage() {
           </div>
         )}
 
+        {/* 新しい画像ファイル選択 */}
         <div className={styles['form-group']}>
-          <label htmlFor="new_photo" className={styles['form-label']}>{t('select_new_photo_label')}</label>
+          <label htmlFor="new_photo" className={styles['form-label']}>新しい写真を選ぶ (任意)</label>
           <input
             type="file"
             id="new_photo"
@@ -221,36 +219,37 @@ function RecipeEditPage() {
             onChange={handleNewImageFileChange}
             className={styles['form-file-input']}
           />
-          <p className={styles['file-name']}>{t('photo_replace_message')}</p>
+          <p className={styles['file-name']}>※新しいファイルを選ぶと、現在の画像は置き換わります。</p>
+        </div>
+
+        {/* 動画URL入力 */}
+        <div className={styles['form-group']}>
+          <label htmlFor="video_url" className={styles['form-label']}>動画URL</label>
+          <input type="text" id="video_url" name="video_url" value={recipeData.video_url} onChange={handleChange} className={styles['form-input']} placeholder="YouTubeなどの動画URLを入力" />
         </div>
 
         <div className={styles['form-group']}>
-          <label htmlFor="video_url" className={styles['form-label']}>{t('video_url_label')}</label>
-          <input type="text" id="video_url" name="video_url" value={recipeData.video_url} onChange={handleChange} className={styles['form-input']} placeholder={t('video_url_placeholder')} />
-        </div>
-
-        <div className={styles['form-group']}>
-          <label htmlFor="difficulty" className={styles['form-label']}>{t('difficulty_label')}</label>
+          <label htmlFor="difficulty" className={styles['form-label']}>難易度</label>
           <select id="difficulty" name="difficulty" value={recipeData.difficulty} onChange={handleChange} className={styles['form-select']}>
-            <option value="">{t('select_difficulty_placeholder')}</option>
-            <option value="easy">{t('difficulty_easy')}</option>
-            <option value="medium">{t('difficulty_medium')}</option>
-            <option value="hard">{t('difficulty_hard')}</option>
+            <option value="">選択してや</option>
+            <option value="easy">初心者向け</option>
+            <option value="medium">普通</option>
+            <option value="hard">達人向け</option>
           </select>
         </div>
 
         <div className={styles['form-group']}>
-          <label htmlFor="prep_time_minutes" className={styles['form-label']}>{t('prep_time_label')} ({t('minutes_unit')})</label>
+          <label htmlFor="prep_time_minutes" className={styles['form-label']}>準備時間 (分)</label>
           <input type="number" id="prep_time_minutes" name="prep_time_minutes" value={recipeData.prep_time_minutes} onChange={handleChange} className={styles['form-input']} min="0" />
         </div>
 
         <div className={styles['form-group']}>
-          <label htmlFor="cook_time_minutes" className={styles['form-label']}>{t('cook_time_label')} ({t('minutes_unit')})</label>
+          <label htmlFor="cook_time_minutes" className={styles['form-label']}>調理時間 (分)</label>
           <input type="number" id="cook_time_minutes" name="cook_time_minutes" value={recipeData.cook_time_minutes} onChange={handleChange} className={styles['form-input']} min="0" />
         </div>
 
         <button type="submit" className={styles['submit-button']}>
-          {t('update_recipe_button')}
+          レシピを更新する！
         </button>
       </form>
     </div>

@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // ★ 1. useTranslationをインポート
+import { useParams, useNavigate, useLocation } from 'react-router-dom'; // useLocationを追加
 import styles from './RecipeDetailPage.module.css';
 
 function RecipeDetailPage() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { i18n } = useTranslation(); // ★ 2. i18nオブジェクトを取得
+  const location = useLocation(); // useLocationフックを使用
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null); // ログインユーザーID
+  const [successMessage, setSuccessMessage] = useState(null); // 成功メッセージ用のstate
 
+  // 投稿/編集ページから渡されたメッセージがあるかチェックし、表示・非表示を管理
   useEffect(() => {
     if (location.state && location.state.message) {
       setSuccessMessage(location.state.message);
@@ -26,6 +25,7 @@ function RecipeDetailPage() {
   }, [location.state, navigate, location.pathname]);
 
   useEffect(() => {
+    // ログインユーザーIDをlocalStorageから取得
     const userId = localStorage.getItem('user_id');
     if (userId) {
       setCurrentUserId(userId);
@@ -56,8 +56,9 @@ function RecipeDetailPage() {
     };
 
     fetchRecipeDetail();
-  }, [recipeId]);
+  }, [recipeId]); // recipeIdが変更されたら再フェッチ
 
+  // レシピ削除ハンドラ (RecipeListPageから移植)
   const handleDeleteRecipe = async () => {
     if (!window.confirm('本当にこのレシピを削除しますか？')) {
       return;
@@ -80,7 +81,7 @@ function RecipeDetailPage() {
 
       if (response.ok) {
         alert('レシピが正常に削除されました。');
-        navigate('/recipes', { state: { message: 'レシピを削除しました！' } });
+        navigate('/recipes', { state: { message: 'レシピを削除しました！' } }); // 削除後、一覧ページにリダイレクト
       } else {
         const errorData = await response.json();
         alert(`レシピの削除に失敗しました: ${errorData.message || response.statusText}`);
@@ -91,6 +92,7 @@ function RecipeDetailPage() {
     }
   };
 
+  // レシピ編集ハンドラ
   const handleEditRecipe = () => {
     navigate(`/recipes/${recipeId}/edit`);
   };
@@ -125,10 +127,11 @@ function RecipeDetailPage() {
     );
   }
 
+  // 日付のフォーマット関数
   const formatDateTime = (isoString) => {
     if (!isoString) return '不明';
     const date = new Date(isoString);
-    return date.toLocaleString(i18n.language === 'en' ? 'en-US' : 'ja-JP', { // ★ 3. 日付表示も多言語化
+    return date.toLocaleString('ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -137,12 +140,7 @@ function RecipeDetailPage() {
     });
   };
 
-  const isOwner = currentUserId && String(recipe.user_id) === currentUserId;
-
-  // ★ 4. 表示するテキストを言語に応じて動的に選択する
-  const title = i18n.language === 'en' && recipe.title_en ? recipe.title_en : recipe.title;
-  const ingredients = i18n.language === 'en' && recipe.ingredients_en ? recipe.ingredients_en : recipe.ingredients;
-  const instructions = i18n.language === 'en' && recipe.instructions_en ? recipe.instructions_en : recipe.instructions;
+  const isOwner = currentUserId && String(recipe.user_id) === currentUserId; // 自分のレシピかどうかを判定
 
   return (
     <div className={styles['detail-container']}>
@@ -152,8 +150,9 @@ function RecipeDetailPage() {
         </div>
       )}
       <div className={styles['recipe-detail-card']}>
-        <h1 className={styles['recipe-title']}>{title}</h1> {/* ★ 5. タイトルを動的に表示 */}
+        <h1 className={styles['recipe-title']}>{recipe.title}</h1>
 
+        {/* 編集・削除ボタンのコンテナ */}
         {isOwner && (
           <div className={styles['action-buttons-container']}>
             <button onClick={handleEditRecipe} className={styles['edit-button']}>
@@ -174,12 +173,12 @@ function RecipeDetailPage() {
 
         <div className={styles['section']}>
           <h2 className={styles['section-title']}>材料</h2>
-          <p className={styles['section-content']}>{ingredients}</p> {/* ★ 6. 材料を動的に表示 */}
+          <p className={styles['section-content']}>{recipe.ingredients}</p>
         </div>
 
         <div className={styles['section']}>
           <h2 className={styles['section-title']}>作り方</h2>
-          <p className={styles['section-content']}>{instructions}</p> {/* ★ 7. 作り方を動的に表示 */}
+          <p className={styles['section-content']}>{recipe.instructions}</p>
         </div>
 
         {recipe.video_url && (
