@@ -82,37 +82,32 @@ def add_recipe():
     current_user_identity = get_jwt_identity()
     try:
         current_user_id = int(current_user_identity)
-    except (TypeError, ValueError):
+    except ValueError:
         return jsonify({"message": "無効なユーザーID形式です"}), 400
 
     photo_url = None
+    
+    if 'image' in request.files:
+        image_file = request.files['image']
+        
+        # ★ ファイル名が有効か、拡張子があるかを確認する
+        if not image_file.filename or not '.' in image_file.filename:
+             return jsonify({"message": "画像ファイルが無効です"}), 400
 
-    # 安全な upload_dir を作る
-    upload_dir = os.path.abspath(os.path.join(current_app.root_path, '..', UPLOAD_FOLDER))
-    os.makedirs(upload_dir, exist_ok=True)
-
-    image_file = request.files.get('image')
-    if image_file and image_file.filename:
-        filename = secure_filename(image_file.filename)
-        if not filename or '.' not in filename:
-            return jsonify({"message": "画像ファイル名が無効です"}), 400
-
-        ext = filename.rsplit('.', 1)[1].lower()
-        if ext not in ALLOWED_EXTENSIONS:
+        if image_file and allowed_file(image_file.filename):
+            unique_filename = str(uuid.uuid4()) + '.' + secure_filename(image_file.filename).rsplit('.', 1)[1].lower()
+            file_path = os.path.join(current_app.root_path, '..', UPLOAD_FOLDER, unique_filename)
+            try:
+                image_file.save(file_path)
+                photo_url = f"/api/recipes/uploads/{unique_filename}"
+            except Exception as e:
+                return jsonify({"message": f"画像のアップロードに失敗しました: {str(e)}"}), 500
+        else:
             return jsonify({"message": "許可されていないファイル形式です"}), 400
 
-        unique_filename = f"{uuid.uuid4()}.{ext}"
-        file_path = os.path.join(upload_dir, unique_filename)
-        try:
-            image_file.save(file_path)
-            photo_url = f"/api/recipes/uploads/{unique_filename}"
-        except Exception as e:
-            current_app.logger.exception("画像の保存に失敗しました")
-            return jsonify({"message": f"画像のアップロードに失敗しました: {str(e)}"}), 500
-
     data = request.form
-    # 空文字も弾きたい場合は get(k) truthy チェックにする
-    if not all(data.get(k) for k in ["title", "ingredients", "instructions"]):
+
+    if not all(k in data for k in ["title", "ingredients", "instructions"]):
         if photo_url:
             delete_local_image(os.path.basename(photo_url))
         return jsonify({"message": "タイトル、材料、作り方は必須です"}), 400
@@ -259,4 +254,3 @@ def delete_recipe(recipe_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"レシピの削除に失敗しました: {str(e)}"}), 500
-    

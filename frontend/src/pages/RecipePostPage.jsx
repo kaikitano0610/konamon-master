@@ -184,9 +184,9 @@ function RecipePostPage() {
             className={styles['form-select']}
           >
             <option value="">{t('select_difficulty_placeholder')}</option>
-            <option value="初心者向け">{t('difficulty_easy')}</option> {/* ★ ここを修正 */}
-            <option value="普通">{t('difficulty_medium')}</option> {/* ★ ここを修正 */}
-            <option value="難しい">{t('difficulty_hard')}</option> {/* ★ ここを修正 */}
+            <option value="easy">{t('difficulty_easy')}</option> {/* ★ ここを修正 */}
+            <option value="medium">{t('difficulty_medium')}</option> {/* ★ ここを修正 */}
+            <option value="hard">{t('difficulty_hard')}</option> {/* ★ ここを修正 */}
           </select>
         </div>
 
@@ -217,7 +217,7 @@ function RecipePostPage() {
         </div>
 
         <button type="submit" className={styles['submit-button']}>
-          投稿する
+          {t('post_recipe_button')}
         </button>
       </form>
     </div>

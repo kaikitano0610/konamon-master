@@ -30,7 +30,6 @@ services:
       - .:/code
       - ./tsugidoko-467608-f85dcf77aaed.json:/code/google-credentials.json
       - ./backend/uploads:/code/backend/uploads
-      - ./backend/migrations:/code/migrations
     working_dir: /code
     env_file:
       - .env # <-- ここを .env に統一
